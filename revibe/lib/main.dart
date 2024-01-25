@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'signup_page.dart'; // Import the SignUpPage widget
+import 'signup_page.dart'; 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'dashboard.dart';
+import 'login_page.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +25,21 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const MyHomePage(title: 'ReVibe'),
+      routes: {
+        '/login': (context) => LoginPage(),
+        '/dashboard': (context) {
+          final Map<String, dynamic>? args =
+              ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+          // Extract the required argument, for example, the user's name
+          final String userName = args?['userName'] ?? '';
+
+          // Pass the argument to the DashboardPage
+          return DashboardPage(userName: userName);
+        },
+
+      },
+
     );
   }
 }

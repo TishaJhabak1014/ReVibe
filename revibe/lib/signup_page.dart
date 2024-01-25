@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'main.dart'; // Import the SignUpPage widget
+import 'main.dart'; 
 import 'dart:async'; 
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'login_page.dart'; 
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -113,6 +114,18 @@ class _SignUpPageState extends State<SignUpPage> {
               child: const Text('Submit'),
             ),
 
+            // Log In button to redirect to a different page
+            TextButton(
+              onPressed: () {
+                // Navigate to the login page when the button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()), // Assuming LoginPage is your login page
+                );
+              },
+              child: Text('Already a member? Log In'),
+            ),
+
             if (errorMessage.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -120,7 +133,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   errorMessage,
                   style: TextStyle(color: Colors.red),
                 ),
-              ),
+             ),
 
           ],
         ),
@@ -134,7 +147,7 @@ class _SignUpPageState extends State<SignUpPage> {
     // Your Firebase logic here, e.g., using Firebase Realtime Database or Firestore
     // Note: Ensure you have initialized Firebase in your app before using these services
     // Example:
-    final collection = FirebaseFirestore.instance.collection('signup');
+    final collection = FirebaseFirestore.instance.collection('users');
     try {
       await collection.doc().set(
         {
