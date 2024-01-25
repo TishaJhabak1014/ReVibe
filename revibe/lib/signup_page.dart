@@ -2,11 +2,37 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main.dart'; // Import the SignUpPage widget
 import 'dart:async'; 
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
-class SignUpPage extends StatelessWidget {
+class SignUpPage extends StatefulWidget {
+  @override
+  _SignUpPageState createState() => _SignUpPageState();
+}
+
+  String hashPassword(String password) {
+    // SHA-256 for hashing
+    var bytes = utf8.encode(password);
+    var hashedPassword = sha256.convert(bytes).toString();
+    return hashedPassword;
+  }
+
+
+
+class _SignUpPageState extends State<SignUpPage> {
   TextEditingController firstNameController = TextEditingController();
   TextEditingController emailAddressController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+
+  String errorMessage = ''; // Variable to hold error messages
+
+
+  bool isValidEmail(String email) {
+  // Using regex for basic email validation
+    RegExp emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+    return emailRegex.hasMatch(email);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +60,11 @@ class SignUpPage extends StatelessWidget {
               decoration: InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
+            TextField(
+              controller: confirmPasswordController,
+              decoration: InputDecoration(labelText: 'Confirm Password'),
+              obscureText: true,
+            ),
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
@@ -41,18 +72,56 @@ class SignUpPage extends StatelessWidget {
                 String firstName = firstNameController.text;
                 String emailAddress = emailAddressController.text;
                 String password = passwordController.text;
+                String confirmPassword = confirmPasswordController.text;
 
                 // Validate the input if needed
                 // Print values to console
-                print('First Name: $firstName');
-                print('Email Address: $emailAddress');
+                // print('First Name: $firstName');
+                print('test: $confirmPassword $password');
 
+                // Validate the input
+                if (firstName.isEmpty || emailAddress.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+                  // Display an error message
+                  setState(() {
+                    errorMessage = 'All fields are required';
+                  });
+                  return;
+                }
+
+                if (!isValidEmail(emailAddress)) {
+                  // Display an error message
+                  setState(() {
+                    errorMessage = 'Invalid email address';
+                  });
+                  return;
+                }
+
+                if (password != confirmPassword) {
+                  // Display an error message
+                  setState(() {
+                    errorMessage = 'Passwords do not match';
+                  });
+                  return;
+                }
+
+                // Hash the password
+                String hashedPassword = hashPassword(password);
                 // Perform further actions, for example, send data to Firebase
-                await _submitToFirebase(context, firstName, emailAddress, password);
+                await _submitToFirebase(context, firstName, emailAddress, hashedPassword);
 
               },
               child: const Text('Submit'),
             ),
+
+            if (errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  errorMessage,
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+
           ],
         ),
       ),
@@ -70,7 +139,10 @@ class SignUpPage extends StatelessWidget {
       await collection.doc().set(
         {
           'timestamp': FieldValue.serverTimestamp(),
-          'firstName': firstName,
+          'firstname': firstName,
+          'email': emailAddress,
+          'password': password,
+
         },
       );
       // ignore: use_build_context_synchronously
@@ -81,8 +153,11 @@ class SignUpPage extends StatelessWidget {
         ),
       );
     } catch (error) {
-      print('Error submitting to Firebase: $error');
-      // Handle the error appropriately, e.g., show an error message to the user
+      // Display an error message on the page
+      setState(() {
+        errorMessage = 'Error submitting to Firebase: $error';
+      });
+      
     }
 
   }
