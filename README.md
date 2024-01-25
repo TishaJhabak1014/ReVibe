@@ -110,3 +110,8 @@ Designing the data model for your Waste Reduction Tracker app:
 After a user scans an item at the shop, the shop can retrieve the user's identity and the scanned item(s) using the `ScannableBarcode` in the transaction record.
 
 This model ensures that each user has a unique identity, and the scannable barcode is generated based on the concatenation of the user ID and item ID. Shops can have their own points configuration for different reusable items, and the transaction records will capture the relevant information for reporting and display at the shop's end.
+
+# Wireframes
+
+### Figma
+   - see [here]( https://www.figma.com/file/4W51zZD76xyocgZZTblSEs/ReVibe?type=design&node-id=0%3A1&mode=design&t=wWIfUABscgkjAxd7-1)
