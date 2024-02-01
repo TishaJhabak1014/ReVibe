@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main.dart'; 
@@ -7,16 +8,20 @@ import 'dart:convert';
 import 'login_page.dart'; 
 
 class SignUpPage extends StatefulWidget {
+  final int userType; // Change the type to String
+
+  SignUpPage({required this.userType});
+
   @override
   _SignUpPageState createState() => _SignUpPageState();
 }
 
-  String hashPassword(String password) {
-    // SHA-256 for hashing
-    var bytes = utf8.encode(password);
-    var hashedPassword = sha256.convert(bytes).toString();
-    return hashedPassword;
-  }
+String hashPassword(String password) {
+  // SHA-256 for hashing
+  var bytes = utf8.encode(password);
+  var hashedPassword = sha256.convert(bytes).toString();
+  return hashedPassword;
+}
 
 
 
@@ -28,6 +33,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   String errorMessage = ''; // Variable to hold error messages
 
+  
 
   bool isValidEmail(String email) {
   // Using regex for basic email validation
@@ -37,9 +43,13 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    int userType = widget.userType;  // Initialize userType in the build method
     return Scaffold(
+      // appBar: AppBar(
+      //   title: const Text('Sign Up'),
+      // ),
       appBar: AppBar(
-        title: const Text('Sign Up'),
+        title: Text('Sign Up - $userType'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -114,18 +124,6 @@ class _SignUpPageState extends State<SignUpPage> {
               child: const Text('Submit'),
             ),
 
-            // Log In button to redirect to a different page
-            TextButton(
-              onPressed: () {
-                // Navigate to the login page when the button is pressed
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()), // Assuming LoginPage is your login page
-                );
-              },
-              child: Text('Already a member? Log In'),
-            ),
-
             if (errorMessage.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -162,7 +160,7 @@ class _SignUpPageState extends State<SignUpPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const MyApp(),
+          builder: (context) => LoginPage(userType: 1),
         ),
       );
     } catch (error) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:revibe/account_middleware.dart';
 import 'signup_page.dart'; 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const MyHomePage(title: 'ReVibe'),
       routes: {
-        '/login': (context) => LoginPage(),
+        '/login': (context) => LoginPage(userType: 1),
         '/dashboard': (context) {
           final Map<String, dynamic>? args =
               ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
@@ -73,11 +74,22 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SignUpPage(),
+                    builder: (context) => AccountMiddlewarePage(actionType: 1),
                   ),
                 );
               },
-              child: const Text('Sign Up'),
+              child: const Text('Log in'),
+            ),
+
+            TextButton(
+              onPressed: () {
+                // Navigate to the login page when the button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AccountMiddlewarePage(actionType: 2)), // Assuming LoginPage is your login page
+                );
+              },
+              child: Text('Not a member yet? Join Now'),
             ),
           ],
         ),

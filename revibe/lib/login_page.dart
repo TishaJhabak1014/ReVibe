@@ -2,6 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'package:revibe/account_middleware.dart';
+
+
+class LoginPage extends StatefulWidget {
+  final int userType;
+
+  LoginPage({required this.userType});
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
 
 // Function to hash the password using SHA-256
 String hashPassword(String password) {
@@ -10,12 +22,14 @@ String hashPassword(String password) {
   return hashedPassword;
 }
 
-class LoginPage extends StatelessWidget {
+class _LoginPageState extends State<LoginPage>{
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    int userType = widget.userType; 
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Log In'),
@@ -51,6 +65,18 @@ class LoginPage extends StatelessWidget {
                 _performLogin(context, email, password);
               },
               child: const Text('Log In'),
+            ),
+
+            // Log In button to redirect to a different page
+            TextButton(
+              onPressed: () {
+                // Navigate to the login page when the button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AccountMiddlewarePage(actionType: 2)), // Assuming LoginPage is your login page
+                );
+              },
+              child: Text('Not a member yet? Join Now'),
             ),
           ],
         ),
