@@ -257,6 +257,10 @@ class _BisSignUpState extends State<BisSignUp> {
                   return null;
                 },
               ),
+              TextField(
+                controller: mapLocationController,
+                decoration: InputDecoration(labelText: 'Map Location'),
+              ),
               TextFormField(
                 controller: emailAddressController,
                 decoration: InputDecoration(labelText: 'Email Address'),
@@ -374,7 +378,7 @@ class _BisSignUpState extends State<BisSignUp> {
       await collection.doc().set(
         {
           'timestamp': FieldValue.serverTimestamp(),
-          'businessName': businessName,
+          'firstName': businessName,
           'abn': abn,
           'email': email,
           'password': password

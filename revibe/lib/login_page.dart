@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:revibe/account_middleware.dart';
+import 'package:revibe/bis_dashboard.dart';
+
 
 
 class LoginPage extends StatefulWidget {
@@ -116,12 +118,39 @@ class _LoginPageState extends State<LoginPage>{
       //   'username': querySnapshot.docs.first['username'], 
       // });
 
-      Navigator.pushNamed(
-        context,
-        '/dashboard',
-        arguments: {'userName': querySnapshot.docs.first['firstname'],
-        }, 
-      );
+      // Navigator.pushNamed(
+      //   context,
+      //   '/dashboard',
+      //   arguments: {'userName': querySnapshot.docs.first['firstname'],
+      //   }, 
+      // );
+
+      
+
+
+      if(userType == 1){
+        // collection = FirebaseFirestore.instance.collection('users');
+        Navigator.pushNamed(
+          context,
+          '/dashboard',
+          arguments: {'userName': querySnapshot.docs.first['firstname'],
+          }, 
+        );
+      }else if(userType == 2){
+            Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BisDashboard(),
+          ),
+        );
+      }else{
+        Navigator.pushNamed(
+          context,
+          '/dashboard',
+          arguments: {'userName': querySnapshot.docs.first['firstname'],
+          }, 
+        );
+      }
 
       } else {
         // No matching record found, show an error message
