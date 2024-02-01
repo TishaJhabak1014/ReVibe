@@ -166,7 +166,7 @@ class _FundraiserSignUpState extends State<FundraiserSignUp> {
       await collection.doc().set(
         {
           'timestamp': FieldValue.serverTimestamp(),
-          'pocName': pocName,
+          'firstname': pocName,
           'organisationName': org,
           'email': email,
           'password': password,

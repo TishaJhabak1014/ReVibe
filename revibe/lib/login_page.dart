@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage>{
                 String password = passwordController.text;
 
                 // Perform further actions, e.g., check in the database
-                _performLogin(context, email, password);
+                _performLogin(context, userType, email, password);
               },
               child: const Text('Log In'),
             ),
@@ -85,13 +85,20 @@ class _LoginPageState extends State<LoginPage>{
   }
 
  
-  void _performLogin(BuildContext context, String email, String password) async {
+  void _performLogin(BuildContext context, int userType, String email, String password) async {
     try {
       String hashedPassword = hashPassword(password);
 
-      print(hashedPassword);
+      final collection;
 
-      final collection = FirebaseFirestore.instance.collection('users');
+      if(userType == 1){
+        collection = FirebaseFirestore.instance.collection('users');
+      }else if(userType == 2){
+        collection = FirebaseFirestore.instance.collection('businesses');
+      }else{
+        collection = FirebaseFirestore.instance.collection('fundraisers');
+      }
+      
       var querySnapshot = await collection.where('email', isEqualTo: email).where('password', isEqualTo: hashedPassword).get();
 
       if (querySnapshot.docs.isNotEmpty) {
