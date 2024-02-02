@@ -15,6 +15,10 @@ class _BisDashboardState extends State<BisDashboard> {
   List<ScannableItem> scannableItems = [];
   int? businessPointThreshold;
 
+    // Variable to track the selected option
+  String selectedOption = 'manage_items';
+
+
   @override
   void initState() {
     super.initState();
@@ -24,22 +28,121 @@ class _BisDashboardState extends State<BisDashboard> {
   }
 
 
-  @override
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       title: const Text('Business Dashboard'),
+  //     ),
+  //     body: SingleChildScrollView(
+  //       padding: const EdgeInsets.all(16.0),
+  //       child: Column(
+  //         children: [
+            
+  //           if (businessPointThreshold != null)
+  //             _buildMetricSettingTile(businessPointThreshold!),
+            
+  //           Visibility(
+  //             visible: businessPointThreshold == null,
+  //             child: ElevatedButton(
+  //               onPressed: () {
+  //                 _editBusinessPointThresholdDialog();
+  //               },
+  //               child: const Text('Add Point Threshold'),
+  //             ),
+  //           ),
+
+  //           const SizedBox(height: 16.0), // Add some spacing
+  //           ElevatedButton(
+  //             onPressed: () {
+  //               _addScannableItemDialog();
+  //             },
+  //             child: const Text('Add Scannable Item'),
+  //           ),
+  //           const SizedBox(height: 16.0), // Add some spacing
+            
+
+  //           //
+  //           // ElevatedButton(
+  //           //   onPressed: () {
+  //           //     _addScannableItemDialog();
+  //           //   },
+  //           //   child: const Text('Add Scannable Item'),
+  //           // ),
+  //           // Display added scannable items
+  //           for (int index = 0; index < scannableItems.length; index++)
+  //             _buildScannableItemTile(scannableItems[index], index),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Business Dashboard'),
       ),
+      // Add a Drawer for sidebar navigation
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              child: Text('Dashboard Options'),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
+            ListTile(
+              title: Text('Manage Items'),
+              onTap: () {
+                // Change the selected option and close the drawer
+                setState(() {
+                  selectedOption = 'manage_items';
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('Transactions'),
+              onTap: () {
+                setState(() {
+                  selectedOption = 'transactions';
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('Active Home'),
+              onTap: () {
+                setState(() {
+                  selectedOption = 'active_home';
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('Collaborations'),
+              onTap: () {
+                setState(() {
+                  selectedOption = 'collaborations';
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            
-            if (businessPointThreshold != null)
+            if (businessPointThreshold != null && selectedOption == 'manage_items')
               _buildMetricSettingTile(businessPointThreshold!),
-            
             Visibility(
-              visible: businessPointThreshold == null,
+              visible: businessPointThreshold == null && selectedOption == 'manage_items',
               child: ElevatedButton(
                 onPressed: () {
                   _editBusinessPointThresholdDialog();
@@ -47,27 +150,28 @@ class _BisDashboardState extends State<BisDashboard> {
                 child: const Text('Add Point Threshold'),
               ),
             ),
-
-            const SizedBox(height: 16.0), // Add some spacing
-            ElevatedButton(
+            const SizedBox(height: 16.0),
+            Visibility(
+              visible: selectedOption == 'manage_items',
+              child: ElevatedButton(
               onPressed: () {
                 _addScannableItemDialog();
               },
               child: const Text('Add Scannable Item'),
             ),
-            const SizedBox(height: 16.0), // Add some spacing
+            ),
+            if ( selectedOption == 'manage_items')
+              for (int index = 0; index < scannableItems.length; index++)
+                _buildScannableItemTile(scannableItems[index], index),
             
-
-            //
-            // ElevatedButton(
-            //   onPressed: () {
-            //     _addScannableItemDialog();
-            //   },
-            //   child: const Text('Add Scannable Item'),
-            // ),
-            // Display added scannable items
-            for (int index = 0; index < scannableItems.length; index++)
-              _buildScannableItemTile(scannableItems[index], index),
+            const SizedBox(height: 16.0),
+            if (selectedOption == 'transactions')
+              Text('Your transactions go here'),
+            if (selectedOption == 'active_home')
+              Text('This is Active Home'),
+            if (selectedOption == 'collaborations')
+              Text('Your collaborations go here'),
+            
           ],
         ),
       ),
