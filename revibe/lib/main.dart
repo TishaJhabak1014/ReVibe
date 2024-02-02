@@ -6,7 +6,6 @@ import 'firebase_options.dart';
 import 'dashboard.dart';
 import 'login_page.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -14,6 +13,7 @@ void main() async {
   );
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -38,9 +38,7 @@ class MyApp extends StatelessWidget {
           // Pass the argument to the DashboardPage
           return DashboardPage(userName: userName);
         },
-
       },
-
     );
   }
 }
@@ -60,6 +58,18 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          Container(
+            margin: EdgeInsets.only(right: 16.0),
+            child: IconButton(
+              onPressed: () {
+                // Handle the action for the "Home" button
+                print("Home button pressed");
+              },
+              icon: Icon(Icons.home),
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -80,13 +90,12 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text('Log in'),
             ),
-
             TextButton(
               onPressed: () {
                 // Navigate to the login page when the button is pressed
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AccountMiddlewarePage(actionType: 2)), // Assuming LoginPage is your login page
+                  MaterialPageRoute(builder: (context) => AccountMiddlewarePage(actionType: 2)),
                 );
               },
               child: Text('Not a member yet? Join Now'),
