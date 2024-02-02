@@ -25,6 +25,7 @@ String hashPassword(String password) {
 }
 
 class _LoginPageState extends State<LoginPage>{
+  
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -108,7 +109,7 @@ class _LoginPageState extends State<LoginPage>{
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Login successful'),
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.green,
           ),
         );
         // print('Login successful');
@@ -137,12 +138,14 @@ class _LoginPageState extends State<LoginPage>{
           }, 
         );
       }else if(userType == 2){
-            Navigator.push(
+        String businessId = querySnapshot.docs.first.id;
+         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BisDashboard(),
+            builder: (context) => BisDashboard(businessId: businessId),
           ),
         );
+
       }else{
         Navigator.pushNamed(
           context,
