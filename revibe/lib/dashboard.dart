@@ -25,16 +25,6 @@ class DashboardPage extends StatelessWidget {
             const SizedBox(height: 16),
             // Display the list of items
             ItemList(),
-            const SizedBox(height: 16),
-            // Generate QR code
-            // Container(
-            //   height: 200.0, // Set the desired height for the QR code
-            //   child: QrImage(
-            //     data: 'Your concatenated userID and itemID here',
-            //     version: QrVersions.auto,
-            //     size: 200.0,
-            //   ),
-            // ),
           ],
         ),
       ),
@@ -66,11 +56,14 @@ class ItemList extends StatelessWidget {
             for (var item in items)
               InkWell(
                 onTap: () {
-                  // Show a snackbar when the item is clicked
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Your scan for ${item['name']} is ready!'),
-                      duration: Duration(minutes: 5),
+                  // Navigate to a new screen with QR code and message
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => QRScreen(
+                        itemName: item['name'],
+                        itemPoints: item['points'],
+                      ),
                     ),
                   );
                 },
@@ -85,6 +78,39 @@ class ItemList extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class QRScreen extends StatelessWidget {
+  final String itemName;
+  final int itemPoints;
+
+  QRScreen({required this.itemName, required this.itemPoints});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Scan QR Code'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Your scan for $itemName is ready!',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            // Display the QR code
+            QrImageView(
+              data: 'Your concatenated userID and itemID here',
+              size: 200.0,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
