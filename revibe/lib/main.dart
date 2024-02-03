@@ -34,9 +34,9 @@ class MyApp extends StatelessWidget {
 
           // Extract the required argument, for example, the user's name
           final String userName = args?['userName'] ?? '';
-
+          final String userID = args?['userID'] ?? '';
           // Pass the argument to the DashboardPage
-          return DashboardPage(userName: userName);
+          return DashboardPage(userName: userName, userID: userID);
         },
       },
     );

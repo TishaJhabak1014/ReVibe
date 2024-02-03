@@ -4,8 +4,9 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 class DashboardPage extends StatelessWidget {
   final String userName;
+  final String userID;
 
-  DashboardPage({required this.userName});
+  DashboardPage({required this.userName, required this.userID});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class DashboardPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             // Display the list of items
-            ItemList(),
+            ItemList(userID: userID),
           ],
         ),
       ),
@@ -33,6 +34,10 @@ class DashboardPage extends StatelessWidget {
 }
 
 class ItemList extends StatelessWidget {
+  final String userID;
+
+  ItemList({required this.userID});
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -56,16 +61,23 @@ class ItemList extends StatelessWidget {
             for (var item in items)
               InkWell(
                 onTap: () {
+                  String documentID = item.id;
+
+                  // print('$userID|$item.id');
                   // Navigate to a new screen with QR code and message
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => QRScreen(
+                        userID : userID,
+                        itemID: item.id, // here should be the document id for tehta item in te firebase 
                         itemName: item['name'],
                         itemPoints: item['points'],
                       ),
                     ),
+                    
                   );
+                  // print('$userID|$documentID');
                 },
                 child: ListTile(
                   title: Text(
@@ -83,13 +95,16 @@ class ItemList extends StatelessWidget {
 }
 
 class QRScreen extends StatelessWidget {
+  final String userID;
   final String itemName;
   final int itemPoints;
+  final String itemID;
 
-  QRScreen({required this.itemName, required this.itemPoints});
+  QRScreen({required this.userID, required this.itemID, required this.itemName, required this.itemPoints});
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Scan QR Code'),
@@ -105,7 +120,7 @@ class QRScreen extends StatelessWidget {
             const SizedBox(height: 16),
             // Display the QR code
             QrImageView(
-              data: 'Your concatenated userID and itemID here',
+              data: '$userID|$itemID', // Concatenate userName and itemID
               size: 200.0,
             ),
           ],
@@ -114,3 +129,4 @@ class QRScreen extends StatelessWidget {
     );
   }
 }
+

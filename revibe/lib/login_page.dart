@@ -130,11 +130,10 @@ class _LoginPageState extends State<LoginPage>{
 
 
       if(userType == 1){
-        // collection = FirebaseFirestore.instance.collection('users');
         Navigator.pushNamed(
           context,
           '/dashboard',
-          arguments: {'userName': querySnapshot.docs.first['firstname'],
+          arguments: {'userName': querySnapshot.docs.first['firstname'], 'userID': querySnapshot.docs.first.id
           }, 
         );
       }else if(userType == 2){
