@@ -134,9 +134,6 @@ class NavigationBar extends StatelessWidget {
 
 
 
-
-
-
 // Navigation State
 class Navigation extends StatefulWidget {
   final String userName;
@@ -246,13 +243,15 @@ class HomeContent extends StatelessWidget {
 
             const SizedBox(height: 10.0),
 
-            // Text widget
+
+
+            // Text widget - Popular
             const Padding(
               padding: EdgeInsets.all(20.0),
               child: 
               
               Text(
-                'Your Text Here',
+                'Popular',
                 style: TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
@@ -260,6 +259,69 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
             ),
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 4.0),
+              child: SizedBox(
+                height: 200,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Container(
+                        height: 250,
+                        width: 300,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          color: Colors.amber,
+                        ),
+                        child: const Icon(
+                          Icons.contacts,
+                          color: Colors.white, size: 100.0,
+                        )
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Container(
+                        height: 250,
+                        width: 300,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          color: Colors.amber,
+                        ),
+                        child: const Icon(
+                          Icons.contacts,
+                          color: Colors.white, size: 100.0,
+                        )
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: Container(
+                        height: 250,
+                        width: 300,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                          color: Colors.amber,
+                        ),
+                        child: const Icon(
+                          Icons.contacts,
+                          color: Colors.white, size: 100.0,
+                        )
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+            ),
+            
+            
+    
 
 
             const Padding(
