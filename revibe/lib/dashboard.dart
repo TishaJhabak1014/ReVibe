@@ -154,7 +154,7 @@ class _NavigationState extends State<Navigation> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Dashboard',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.recycling),
@@ -219,7 +219,7 @@ class HomeContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text('Dashboard'),
       ),
       body: 
       

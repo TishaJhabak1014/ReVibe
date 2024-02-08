@@ -96,11 +96,15 @@ class _NavigationState extends State<Navigation> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.article),
-            label: 'Items',
+            label: 'Item',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.stacked_bar_chart),
-            label: 'Stats',
+            icon: Icon(Icons.menu_book),
+            label: 'Transaction',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.group),
+            label: 'Collaborator',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
@@ -136,10 +140,12 @@ Widget _buildPage(int index, String businessID) {
     case 0:
       return HomeContent();
     case 1:
-      return TransactionContent(); 
+      return ItemContent(); 
     case 2:
-      return CollaboratorContent(); 
+      return TransactionContent(); 
     case 3:
+      return CollaboratorContent(); 
+    case 4:
       return ProfileContent(); 
     default:
       return Container();
@@ -156,15 +162,15 @@ class HomeContent extends StatelessWidget {
 }
 
 
-class TransactionContent extends StatefulWidget {
-  const TransactionContent({super.key});
+class ItemContent extends StatefulWidget {
+  const ItemContent ({super.key});
 
   @override
-  _TransactionContentState createState() => _TransactionContentState();
+  _ItemContentState createState() => _ItemContentState();
 }
 
 
-class _TransactionContentState extends State<TransactionContent> {
+class _ItemContentState extends State<ItemContent > {
   // Initial point threshold value
   int _pointThreshold = 0; 
 
@@ -172,10 +178,10 @@ class _TransactionContentState extends State<TransactionContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transaction Content'),
+        title: const Text('Item Content'),
       ),
 
-      
+
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('scannable_items_org').snapshots(),
         builder: (context, snapshot) {
@@ -196,15 +202,34 @@ class _TransactionContentState extends State<TransactionContent> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
+
+              // Text 
+              const Padding(
+                padding: EdgeInsets.all(20.0),
+                child: 
+                
+                Text(
+                  'Items',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+
+
+
+              // Item list
               Expanded(
                 child: ListView.builder(
                   itemCount: items.length,
                   itemBuilder: (context, index) {
                     var item = items[index];
-                    var itemName = item['name']; // Replace 'name' with the field name in your Firestore document
+                    var itemName = item['name']; 
                     return ListTile(
                       title: Text(itemName),
-                      // Add other properties you want to display
                     );
                   },
                 ),
@@ -276,6 +301,14 @@ class _TransactionContentState extends State<TransactionContent> {
   }
 }
 
+
+
+class TransactionContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Text('Transaction Page Content');
+  }
+}
 
 
 class CollaboratorContent extends StatelessWidget {
