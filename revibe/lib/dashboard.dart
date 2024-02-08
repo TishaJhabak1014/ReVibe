@@ -131,9 +131,6 @@ class NavigationBar extends StatelessWidget {
   }
 }
 
-
-
-
 // Navigation State
 class Navigation extends StatefulWidget {
   final String userName;
@@ -224,7 +221,9 @@ class HomeContent extends StatelessWidget {
       appBar: AppBar(
         title: Text('Home'),
       ),
-      body: Padding(
+      body: 
+      
+      Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           shrinkWrap: true,
@@ -238,11 +237,17 @@ class HomeContent extends StatelessWidget {
             const SizedBox(height: 50.0),
 
             // Image
-            Image.asset("assets/recycle1.png"),
+            SizedBox(
+              height: 300,
+              width: 300,
+              child: FittedBox(
+                fit: BoxFit.cover, 
+                child: Image.asset("assets/recycle1.png"),
+              ),
+            ),
 
-
-            const SizedBox(height: 10.0),
-
+            // Spacer
+            const SizedBox(height: 75.0),
 
 
             // Text widget - Popular
@@ -260,69 +265,33 @@ class HomeContent extends StatelessWidget {
               ),
             ),
 
+
+            // Popular items
             Padding(
-              padding: const EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 4.0),
-              child: SizedBox(
-                height: 200,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Container(
-                        height: 250,
-                        width: 300,
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          color: Colors.amber,
-                        ),
-                        child: const Icon(
-                          Icons.contacts,
-                          color: Colors.white, size: 100.0,
-                        )
-                      ),
-                    ),
+              padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
+              child: Container(
+                padding: const EdgeInsets.all(25.0), 
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.2),
+                 
+                ),
 
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Container(
-                        height: 250,
-                        width: 300,
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          color: Colors.amber,
-                        ),
-                        child: const Icon(
-                          Icons.contacts,
-                          color: Colors.white, size: 100.0,
-                        )
-                      ),
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Container(
-                        height: 250,
-                        width: 300,
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          color: Colors.amber,
-                        ),
-                        child: const Icon(
-                          Icons.contacts,
-                          color: Colors.white, size: 100.0,
-                        )
-                      ),
-                    ),
-
-                  ],
+                child: SizedBox(
+                  height: 200,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      buildIconContainer(),
+                      buildIconContainer(),
+                      buildIconContainer(),
+                      buildIconContainer(),
+                      buildIconContainer(),
+                    ],
+                  ),
                 ),
               ),
             ),
-            
-            
-    
-
+  
 
             const Padding(
               padding: EdgeInsets.all(20.0),
@@ -343,6 +312,32 @@ class HomeContent extends StatelessWidget {
     );
   }
 }
+
+// Popular item format
+Widget buildIconContainer() {
+  return Padding(
+    padding: const EdgeInsets.all(5.0),
+    child: Container(
+      height: 200,
+      width: 250,
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        color: Colors.amber,
+      ),
+      child: const Icon(
+        Icons.contacts,
+        color: Colors.white, size: 100.0,
+      ),
+    ),
+  );
+}
+
+
+
+
+
+
+
 
 class RecycleContent extends StatelessWidget {
   final String userName;

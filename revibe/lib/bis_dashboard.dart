@@ -11,72 +11,6 @@ class BisDashboard extends StatefulWidget {
 }
 
 class _BisDashboardState extends State<BisDashboard> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  List<ScannableItem> scannableItems = [];
-  int? businessPointThreshold;
-
-    // Variable to track the selected option
-  String selectedOption = 'manage_items';
-
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchScannableItems(); // Fetch items when the widget is first inserted
-    _fetchBusinessPointThreshold(); //
-    
-  }
-
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: const Text('Business Dashboard'),
-  //     ),
-  //     body: SingleChildScrollView(
-  //       padding: const EdgeInsets.all(16.0),
-  //       child: Column(
-  //         children: [
-            
-  //           if (businessPointThreshold != null)
-  //             _buildMetricSettingTile(businessPointThreshold!),
-            
-  //           Visibility(
-  //             visible: businessPointThreshold == null,
-  //             child: ElevatedButton(
-  //               onPressed: () {
-  //                 _editBusinessPointThresholdDialog();
-  //               },
-  //               child: const Text('Add Point Threshold'),
-  //             ),
-  //           ),
-
-  //           const SizedBox(height: 16.0), // Add some spacing
-  //           ElevatedButton(
-  //             onPressed: () {
-  //               _addScannableItemDialog();
-  //             },
-  //             child: const Text('Add Scannable Item'),
-  //           ),
-  //           const SizedBox(height: 16.0), // Add some spacing
-            
-
-  //           //
-  //           // ElevatedButton(
-  //           //   onPressed: () {
-  //           //     _addScannableItemDialog();
-  //           //   },
-  //           //   child: const Text('Add Scannable Item'),
-  //           // ),
-  //           // Display added scannable items
-  //           for (int index = 0; index < scannableItems.length; index++)
-  //             _buildScannableItemTile(scannableItems[index], index),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
 @override
   Widget build(BuildContext context) {
@@ -84,363 +18,10 @@ class _BisDashboardState extends State<BisDashboard> {
       appBar: AppBar(
         title: const Text('Business Dashboard'),
       ),
-      // Add a Drawer for sidebar navigation
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              child: Text('Dashboard Options'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-            ),
-            ListTile(
-              title: Text('Manage Items'),
-              onTap: () {
-                // Change the selected option and close the drawer
-                setState(() {
-                  selectedOption = 'manage_items';
-                });
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Transactions'),
-              onTap: () {
-                setState(() {
-                  selectedOption = 'transactions';
-                });
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Active Home'),
-              onTap: () {
-                setState(() {
-                  selectedOption = 'active_home';
-                });
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Collaborations'),
-              onTap: () {
-                setState(() {
-                  selectedOption = 'collaborations';
-                });
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            if (businessPointThreshold != null && selectedOption == 'manage_items')
-              _buildMetricSettingTile(businessPointThreshold!),
-            Visibility(
-              visible: businessPointThreshold == null && selectedOption == 'manage_items',
-              child: ElevatedButton(
-                onPressed: () {
-                  _editBusinessPointThresholdDialog();
-                },
-                child: const Text('Add Point Threshold'),
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            Visibility(
-              visible: selectedOption == 'manage_items',
-              child: ElevatedButton(
-              onPressed: () {
-                _addScannableItemDialog();
-              },
-              child: const Text('Add Scannable Item'),
-            ),
-            ),
-            if ( selectedOption == 'manage_items')
-              for (int index = 0; index < scannableItems.length; index++)
-                _buildScannableItemTile(scannableItems[index], index),
-            
-            const SizedBox(height: 16.0),
-            if (selectedOption == 'transactions')
-              Text('Your transactions go here'),
-            if (selectedOption == 'active_home')
-              Text('This is Active Home'),
-            if (selectedOption == 'collaborations')
-              Text('Your collaborations go here'),
-            
-          ],
-        ),
-      ),
+      bottomNavigationBar: NavigationBar(businessID: widget.businessId, ),
     );
   }
-
-Widget _buildMetricSettingTile(int pointThreshold) {
-  TextEditingController pointThresholdController =
-      TextEditingController(text: pointThreshold.toString());
-
-  return ListTile(
-    title: Row(
-      children: [
-        Expanded(
-          child: Text('1 dollar is rewarded per $pointThreshold points'),
-        ),
-        IconButton(
-          icon: Icon(Icons.edit),
-          onPressed: () {
-            _editBusinessPointThresholdDialog();
-          },
-        ),
-      ],
-    ),
-  );
 }
-
-  Widget _buildScannableItemTile(ScannableItem item, int index) {
-    return ListTile(
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(item.name),
-          ),
-          IconButton(
-            icon: Icon(Icons.edit),
-            onPressed: () {
-              _editScannableItem(item.id);
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () {
-              _deleteScannableItem(item.id);
-            },
-          ),
-        ],
-      ),
-      subtitle: Text('Points: ${item.points}'),
-    );
-  }
-
-  Future<void> _addScannableItemDialog() async {
-    TextEditingController nameController = TextEditingController();
-    TextEditingController pointsController = TextEditingController();
-
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Add Scannable Item'),
-          content: Column(
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: 'Item Name'),
-              ),
-              TextField(
-                controller: pointsController,
-                decoration: InputDecoration(labelText: 'Points'),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                // Validate and add the scannable item
-                if (nameController.text.isNotEmpty && pointsController.text.isNotEmpty) {
-                  ScannableItem newItem = ScannableItem(
-                    id: '', // Provide an empty string for id
-                    businessId: widget.businessId,
-                    name: nameController.text,
-                    points: int.parse(pointsController.text),
-                  );
-
-                  await _saveScannableItem(newItem);
-                  _fetchScannableItems(); // Refresh the list
-                  Navigator.pop(context);
-                }
-              },
-              child: Text('Add'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _saveScannableItem(ScannableItem item) async {
-    await _firestore.collection('scannable_items_org').add({
-      'businessId': item.businessId,
-      'name': item.name,
-      'points': item.points,
-    });
-  }
-
-  void _deleteScannableItem(String itemId) {
-    _firestore.collection('scannable_items_org').doc(itemId).delete();
-    _fetchScannableItems(); // Refresh the list
-  }
-
-  Future<void> _fetchScannableItems() async {
-  QuerySnapshot querySnapshot = await _firestore
-      .collection('scannable_items_org')
-      .where('businessId', isEqualTo: widget.businessId)
-      .get();
-  setState(() {
-      scannableItems = querySnapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return ScannableItem(
-          id: doc.id,
-          businessId: data['businessId'],
-          name: data['name'],
-          points: data['points'],
-        );
-      }).toList();
-    });
-  }
-
-  Future<void> _editScannableItem(String itemId) async {
-  // Fetch the existing item data
-  ScannableItem existingItem = scannableItems.firstWhere((item) => item.id == itemId);
-
-  // Create controllers and set initial values
-  TextEditingController nameController = TextEditingController(text: existingItem.name);
-  TextEditingController pointsController = TextEditingController(text: existingItem.points.toString());
-
-  // Show the dialog
-  await showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Text('Edit Scannable Item'),
-        content: Column(
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: 'Item Name'),
-            ),
-            TextField(
-              controller: pointsController,
-              decoration: InputDecoration(labelText: 'Points'),
-              keyboardType: TextInputType.number,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              // Validate and update the scannable item
-              if (nameController.text.isNotEmpty && pointsController.text.isNotEmpty) {
-                ScannableItem updatedItem = ScannableItem(
-                  id: itemId,
-                  businessId: widget.businessId,
-                  name: nameController.text,
-                  points: int.parse(pointsController.text),
-                );
-
-                await _updateScannableItem(updatedItem);
-                _fetchScannableItems(); // Refresh the list
-                Navigator.pop(context);
-              }
-            },
-            child: Text('Update'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-Future<void> _updateScannableItem(ScannableItem item) async {
-  await _firestore.collection('scannable_items_org').doc(item.id).update({
-    'name': item.name,
-    'points': item.points,
-  });
-}
-
-
-
-// new
-Future<void> _editBusinessPointThresholdDialog() async {
-    TextEditingController pointThresholdController =
-        TextEditingController(text: businessPointThreshold?.toString() ?? '');
-
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Edit Point Threshold'),
-          content: Column(
-            children: [
-              TextField(
-                controller: pointThresholdController,
-                decoration: InputDecoration(labelText: 'Point Threshold'),
-                keyboardType: TextInputType.number,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (pointThresholdController.text.isNotEmpty) {
-                  int updatedPointThreshold = int.parse(pointThresholdController.text);
-                  await _updateBusinessPointThreshold(updatedPointThreshold);
-                  _fetchBusinessPointThreshold(); // Refresh the point threshold
-                  Navigator.pop(context);
-                }
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _fetchBusinessPointThreshold() async {
-    DocumentSnapshot documentSnapshot = await _firestore.collection('businesses').doc(widget.businessId).get();
-    if (documentSnapshot.exists) {
-      setState(() {
-        businessPointThreshold = documentSnapshot['point_threshold'];
-      });
-    } else {
-      setState(() {
-        businessPointThreshold = null;
-      });
-    }
-  }
-
-  Future<void> _updateBusinessPointThreshold(int pointThreshold) async {
-    await _firestore.collection('businesses').doc(widget.businessId).update({
-      'point_threshold': pointThreshold,
-    });
-  }
-
-
-}
-
-
 
 class ScannableItem {
   late String id;
@@ -461,5 +42,254 @@ class ScannableItem {
     required this.name,
     required this.points,
   });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Navigation Bar Layout
+class NavigationBar extends StatelessWidget {
+  final String businessID;
+
+  const NavigationBar({required this.businessID});
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigation(businessID: businessID,);
+  }
+}
+
+// Navigation State
+class Navigation extends StatefulWidget {
+  final String businessID;
+
+  Navigation({Key? key, required this.businessID}) : super(key: key);
+
+  @override
+  State<Navigation> createState() => _NavigationState();
+}
+
+
+
+// Navigation Logic
+class _NavigationState extends State<Navigation> {
+  int currentPageIndex = 0;
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.article),
+            label: 'Items',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.stacked_bar_chart),
+            label: 'Stats',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+
+        ],
+        currentIndex: currentPageIndex,
+        selectedItemColor: Colors.blue, 
+        unselectedItemColor: Colors.grey,
+        
+        
+        onTap: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+      ),
+
+      // Navigation Content
+      body: Center(
+        child: _buildPage(currentPageIndex, widget.businessID),
+      ),
+
+    );
+  }
+}
+
+
+// Function to build content based on the selected index
+Widget _buildPage(int index, String businessID) {
+  switch (index) {
+    case 0:
+      return HomeContent();
+    case 1:
+      return TransactionContent(); 
+    case 2:
+      return CollaboratorContent(); 
+    case 3:
+      return ProfileContent(); 
+    default:
+      return Container();
+  }
+}
+
+
+
+class HomeContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Text('Home Page Content');
+  }
+}
+
+
+class TransactionContent extends StatefulWidget {
+  const TransactionContent({super.key});
+
+  @override
+  _TransactionContentState createState() => _TransactionContentState();
+}
+
+
+class _TransactionContentState extends State<TransactionContent> {
+  // Initial point threshold value
+  int _pointThreshold = 0; 
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Transaction Content'),
+      ),
+
+      
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('scannable_items_org').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          }
+
+          var querySnapshot = snapshot.data!;
+          var items = querySnapshot.docs;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    var item = items[index];
+                    var itemName = item['name']; // Replace 'name' with the field name in your Firestore document
+                    return ListTile(
+                      title: Text(itemName),
+                      // Add other properties you want to display
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+
+
+
+  // Edit points button
+  Future<void> _editBusinessPointThresholdDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+
+      builder: (BuildContext context) {
+        return AlertDialog(
+
+          // Title 
+          title: const Text('Edit Point Threshold'),
+
+
+          // Title
+          content: TextField(
+            decoration: const InputDecoration(
+              labelText: 'New Point Threshold',
+            ),
+            keyboardType: TextInputType.number,
+            controller: TextEditingController(text: _pointThreshold.toString()), // Set initial value here
+            onChanged: (String value) {
+              setState(() {
+                _pointThreshold = value.isEmpty ? 0 : int.tryParse(value) ?? _pointThreshold;
+              });
+            },
+          ),
+
+
+          // Actions
+          actions: <Widget>[
+
+
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+
+
+            TextButton(
+              onPressed: () {
+                // Perform any action here with the updated threshold value
+                // For example, you can save it to preferences or send it to the server.
+                print('New Point Threshold: $_pointThreshold');
+                Navigator.of(context).pop();
+              },
+              child: const Text('Save'),
+            ),
+
+
+          ],
+        );
+      },
+    );
+  }
+}
+
+
+
+class CollaboratorContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Text('Collaborator Page Content');
+  }
+}
+
+
+class ProfileContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Text('Profile Page Content');
+  }
 }
 
