@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:revibe/main.dart';
 
 class DashboardPage extends StatelessWidget {
   final String userName;
@@ -38,7 +39,7 @@ class ItemList extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Items:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -202,7 +203,7 @@ Widget _buildPage(int index, String userName, String userID) {
     case 2:
       return StatsContent(); 
     case 3:
-      return ProfileContent(); 
+      return ProfileContent(userID: userID,); 
     default:
       return Container();
   }
@@ -219,10 +220,14 @@ class HomeContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dashboard'),
+        title: const Text('Dashboard'),
       ),
-      body: 
+
       
+
+
+
+      body: 
       Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
@@ -306,6 +311,8 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
             ),
+
+
           ],
         ),
       ),
@@ -402,10 +409,31 @@ class StatsContent extends StatelessWidget {
 
 
 
+class ProfileContent extends StatefulWidget {
+  final String userID;
+  
+  const ProfileContent ({super.key, required this.userID});
 
-class ProfileContent extends StatelessWidget {
+  @override
+  _ProfileContentState createState() => _ProfileContentState();
+}
+
+class _ProfileContentState extends State<ProfileContent> {
   @override
   Widget build(BuildContext context) {
-    return Text('Profile Page Content');
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pushReplacement(context, 
+            MaterialPageRoute(builder: (context) => const MyApp()));
+          },
+          child: const Text('Logout'),
+        ),
+      ),
+    );
   }
 }

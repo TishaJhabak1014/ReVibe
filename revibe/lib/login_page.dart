@@ -106,12 +106,12 @@ class _LoginPageState extends State<LoginPage>{
 
       if (querySnapshot.docs.isNotEmpty) {
         // Matching record found, perform login actions
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Login successful'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: const Text('Login successful'),
+        //     backgroundColor: Colors.green,
+        //   ),
+        // );
         // print('Login successful');
 
         // Redirect to the dashboard page

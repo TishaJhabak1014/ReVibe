@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'main.dart';
 
 class BisDashboard extends StatefulWidget {
   final String businessId;
@@ -146,7 +147,7 @@ Widget _buildPage(int index, String businessID) {
     case 3:
       return CollaboratorContent(); 
     case 4:
-      return ProfileContent(); 
+      return ProfileContent(businessId: businessID,); 
     default:
       return Container();
   }
@@ -332,8 +333,6 @@ class _ItemContentState extends State<ItemContent> {
     );
   }
 
-
-
   // Function to show edit item dialog
   void _showEditItem(BuildContext context, String itemId) {
     FirebaseFirestore.instance.collection('scannable_items_org').doc(itemId).get().then((DocumentSnapshot documentSnapshot) {
@@ -485,15 +484,39 @@ class CollaboratorContent extends StatelessWidget {
   }
 }
 
-class ProfileContent extends StatelessWidget {
+
+
+
+
+
+class ProfileContent extends StatefulWidget {
+  final String businessId;
+  
+  const ProfileContent ({super.key, required this.businessId});
+
   @override
-  Widget build(BuildContext context) {
-    return Text('Profile Page Content');
-  }
+  _ProfileContentState createState() => _ProfileContentState();
 }
 
-
-
+class _ProfileContentState extends State<ProfileContent> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pushReplacement(context, 
+            MaterialPageRoute(builder: (context) => const MyApp()));
+          },
+          child: const Text('Logout'),
+        ),
+      ),
+    );
+  }
+}
 
 
 
