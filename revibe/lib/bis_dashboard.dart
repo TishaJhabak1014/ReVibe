@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'main.dart';
 
 class BisDashboard extends StatefulWidget {
@@ -80,7 +81,6 @@ class Navigation extends StatefulWidget {
 }
 
 
-
 // Navigation Logic
 class _NavigationState extends State<Navigation> {
   int currentPageIndex = 0;
@@ -139,7 +139,7 @@ class _NavigationState extends State<Navigation> {
 Widget _buildPage(int index, String businessID) {
   switch (index) {
     case 0:
-      return HomeContent();
+      return HomeContent(businessId: businessID,);
     case 1:
       return ItemContent(businessId: businessID,); 
     case 2:
@@ -158,12 +158,114 @@ Widget _buildPage(int index, String businessID) {
 
 
 
-class HomeContent extends StatelessWidget {
+
+class HomeContent extends StatefulWidget {
+  final String businessId;
+  
+  const HomeContent ({super.key, required this.businessId});
+
+  @override
+  _HomeContentState createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  late QRViewController controller;
+  String scannedData = '';
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Text('Home Page Content');
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home Content'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 4,
+              child: QRView(
+                key: qrKey,
+                onQRViewCreated: _onQRViewCreated,
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Handle what to do when the button is pressed
+                  if (scannedData.isNotEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Scanned QR Code'),
+                          content: Text(scannedData),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('No QR code scanned yet!'),
+                    ));
+                  }
+                },
+                child: const Text('Display Scanned QR code'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    this.controller = controller;
+    controller.scannedDataStream.listen((scanData) {
+      // Handle scanned data here
+      setState(() {
+        scannedData = scanData.code!;
+      });
+    });
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class ItemContent extends StatefulWidget {
   final String businessId;
