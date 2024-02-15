@@ -97,7 +97,7 @@ class QRScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Scan QR Code'),
+        title: const Text('Scan QR Code'),
       ),
       body: Center(
         child: Column(

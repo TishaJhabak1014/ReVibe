@@ -208,7 +208,6 @@ class QRScannerScreen extends StatefulWidget {
   _QRScannerScreenState createState() => _QRScannerScreenState();
 }
 
-
 class _QRScannerScreenState extends State<QRScannerScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   late QRViewController controller;
@@ -280,14 +279,35 @@ class DisplayScannedDataScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Parse the scanned data here
+    final parsedData = _parseScannedData(scannedData);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scanned QR Code'),
       ),
       body: Center(
-        child: Text(scannedData),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Information',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              parsedData,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  String _parseScannedData(String scannedData) {
+    final parts = scannedData.split('|');
+    return 'UserID: ${parts[0]}\nItemID: ${parts[1]}';
   }
 }
 
@@ -487,7 +507,7 @@ class _ItemContentState extends State<ItemContent> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Edit Item'),
+              title: const Text('Item Action'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
