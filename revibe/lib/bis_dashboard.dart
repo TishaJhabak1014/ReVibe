@@ -306,9 +306,15 @@ class DisplayScannedDataScreen extends StatelessWidget {
   }
 
   String _parseScannedData(String scannedData) {
-    final parts = scannedData.split('|');
+  final parts = scannedData.split('|');
+
+  if (parts.length >= 2) {
     return 'UserID: ${parts[0]}\nItemID: ${parts[1]}';
+  } else {
+    return 'Error: Unable to parse scanned data.';
   }
+}
+
 }
 
 
