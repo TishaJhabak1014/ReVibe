@@ -168,6 +168,8 @@ class HomeContent extends StatefulWidget {
   _HomeContentState createState() => _HomeContentState();
 }
 
+
+
 class _HomeContentState extends State<HomeContent> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   late QRViewController controller;
@@ -186,50 +188,60 @@ class _HomeContentState extends State<HomeContent> {
         title: const Text('Home Content'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              flex: 4,
-              child: QRView(
-                key: qrKey,
-                onQRViewCreated: _onQRViewCreated,
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle what to do when the button is pressed
-                  if (scannedData.isNotEmpty) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text('Scanned QR Code'),
-                          content: Text(scannedData),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('OK'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('No QR code scanned yet!'),
-                    ));
-                  }
-                },
-                child: const Text('Display Scanned QR code'),
-              ),
-            ),
-          ],
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => QRScannerScreen()),
+            );
+          },
+          child: const Text('Scan QR code'),
         ),
+      ),
+    );
+  }
+}
+
+
+class QRScannerScreen extends StatefulWidget {
+  @override
+  _QRScannerScreenState createState() => _QRScannerScreenState();
+}
+
+
+class _QRScannerScreenState extends State<QRScannerScreen> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  late QRViewController controller;
+  String scannedData = '';
+  bool isDisplayScreenShown = false;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Scan QR Code'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: QRView(
+              key: qrKey,
+              onQRViewCreated: _onQRViewCreated,
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, scannedData);
+            },
+            child: const Text('Close Scanner'),
+          ),
+        ],
       ),
     );
   }
@@ -237,18 +249,47 @@ class _HomeContentState extends State<HomeContent> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      // Handle scanned data here
       setState(() {
         scannedData = scanData.code!;
+        if (!isDisplayScreenShown) {
+          isDisplayScreenShown = true;
+          _navigateToDisplayScreen(scannedData);
+        }
+        controller.stopCamera();
       });
+    });
+  }
+
+  void _navigateToDisplayScreen(String scannedData) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DisplayScannedDataScreen(scannedData: scannedData),
+      ),
+    ).then((_) {
+      isDisplayScreenShown = false;
     });
   }
 }
 
+class DisplayScannedDataScreen extends StatelessWidget {
+  final String scannedData;
 
+  const DisplayScannedDataScreen({Key? key, required this.scannedData})
+      : super(key: key);
 
-
-
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Scanned QR Code'),
+      ),
+      body: Center(
+        child: Text(scannedData),
+      ),
+    );
+  }
+}
 
 
 
