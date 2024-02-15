@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'main.dart';
 
 class BisDashboard extends StatefulWidget {
@@ -80,7 +81,6 @@ class Navigation extends StatefulWidget {
 }
 
 
-
 // Navigation Logic
 class _NavigationState extends State<Navigation> {
   int currentPageIndex = 0;
@@ -139,7 +139,7 @@ class _NavigationState extends State<Navigation> {
 Widget _buildPage(int index, String businessID) {
   switch (index) {
     case 0:
-      return HomeContent();
+      return HomeContent(businessId: businessID,);
     case 1:
       return ItemContent(businessId: businessID,); 
     case 2:
@@ -158,12 +158,175 @@ Widget _buildPage(int index, String businessID) {
 
 
 
-class HomeContent extends StatelessWidget {
+
+class HomeContent extends StatefulWidget {
+  final String businessId;
+  
+  const HomeContent ({super.key, required this.businessId});
+
+  @override
+  _HomeContentState createState() => _HomeContentState();
+}
+
+
+
+class _HomeContentState extends State<HomeContent> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  late QRViewController controller;
+  String scannedData = '';
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Text('Home Page Content');
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home Content'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => QRScannerScreen()),
+            );
+          },
+          child: const Text('Scan QR code'),
+        ),
+      ),
+    );
   }
 }
+
+
+class QRScannerScreen extends StatefulWidget {
+  @override
+  _QRScannerScreenState createState() => _QRScannerScreenState();
+}
+
+class _QRScannerScreenState extends State<QRScannerScreen> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  late QRViewController controller;
+  String scannedData = '';
+  bool isDisplayScreenShown = false;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Scan QR Code'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: QRView(
+              key: qrKey,
+              onQRViewCreated: _onQRViewCreated,
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, scannedData);
+            },
+            child: const Text('Close Scanner'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    this.controller = controller;
+    controller.scannedDataStream.listen((scanData) {
+      setState(() {
+        scannedData = scanData.code!;
+        if (!isDisplayScreenShown) {
+          isDisplayScreenShown = true;
+          _navigateToDisplayScreen(scannedData);
+        }
+        controller.stopCamera();
+      });
+    });
+  }
+
+  void _navigateToDisplayScreen(String scannedData) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DisplayScannedDataScreen(scannedData: scannedData),
+      ),
+    ).then((_) {
+      isDisplayScreenShown = false;
+    });
+  }
+}
+
+class DisplayScannedDataScreen extends StatelessWidget {
+  final String scannedData;
+
+  const DisplayScannedDataScreen({Key? key, required this.scannedData})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Parse the scanned data here
+    final parsedData = _parseScannedData(scannedData);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Scanned QR Code'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Information',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              parsedData,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _parseScannedData(String scannedData) {
+    final parts = scannedData.split('|');
+    return 'UserID: ${parts[0]}\nItemID: ${parts[1]}';
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class ItemContent extends StatefulWidget {
   final String businessId;
@@ -344,7 +507,7 @@ class _ItemContentState extends State<ItemContent> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Edit Item'),
+              title: const Text('Item Action'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[

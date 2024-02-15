@@ -3,17 +3,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:revibe/main.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   final String userName;
   final String userID;
 
-  DashboardPage({required this.userName, required this.userID});
+  const DashboardPage({required this.userName, required this.userID});
 
   @override
+  _DashboardPageState createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  @override
   Widget build(BuildContext context) {
-    return 
-    Scaffold(
-      bottomNavigationBar: NavigationBar(userName: userName, userID: userID),
+    return Scaffold(
+      bottomNavigationBar: NavigationBar(userName: widget.userName, userID: widget.userID),
     );
   }
 }
@@ -93,7 +97,7 @@ class QRScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Scan QR Code'),
+        title: const Text('Scan QR Code'),
       ),
       body: Center(
         child: Column(
@@ -209,34 +213,34 @@ Widget _buildPage(int index, String userName, String userID) {
   }
 }
 
-// Widgets for each navigation tab
-class HomeContent extends StatelessWidget {
+
+
+class HomeContent extends StatefulWidget {
   final String userName;
   final String userID;
 
-  HomeContent({required this.userName, required this.userID});
+  const HomeContent({required this.userName, required this.userID});
 
+  @override
+  _HomeContentState createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+   
       ),
-
-      
-
-
-
-      body: 
-      Padding(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           shrinkWrap: true,
           children: [
             // Welcome text
             Text(
-              'Welcome, $userName!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              'Welcome, ${widget.userName}!',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 50.0),
@@ -246,7 +250,7 @@ class HomeContent extends StatelessWidget {
               height: 300,
               width: 300,
               child: FittedBox(
-                fit: BoxFit.cover, 
+                fit: BoxFit.cover,
                 child: Image.asset("assets/recycle1.png"),
               ),
             ),
@@ -254,13 +258,10 @@ class HomeContent extends StatelessWidget {
             // Spacer
             const SizedBox(height: 75.0),
 
-
             // Text widget - Popular
             const Padding(
               padding: EdgeInsets.all(20.0),
-              child: 
-              
-              Text(
+              child: Text(
                 'Popular',
                 style: TextStyle(
                   fontSize: 18.0,
@@ -270,17 +271,14 @@ class HomeContent extends StatelessWidget {
               ),
             ),
 
-
             // Popular items
             Padding(
               padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
               child: Container(
-                padding: const EdgeInsets.all(25.0), 
+                padding: const EdgeInsets.all(25.0),
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.2),
-                 
                 ),
-
                 child: SizedBox(
                   height: 200,
                   child: ListView(
@@ -296,13 +294,10 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
             ),
-  
 
             const Padding(
               padding: EdgeInsets.all(20.0),
-              child: 
-              
-              Text(
+              child: Text(
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quam elementum pulvinar etiam non quam lacus. Enim nec dui nunc mattis. Amet nisl purus in mollis nunc. Et ultrices neque ornare aenean. Facilisi cras fermentum odio eu feugiat. Elementum tempus egestas sed sed. Tortor at risus viverra adipiscing at in tellus integer. Vulputate eu scelerisque felis imperdiet proin fermentum leo vel orci. Vitae congue eu consequat ac felis donec et odio. Bibendum at varius vel pharetra vel turpis nunc. Est lorem ipsum dolor sit amet consectetur adipiscing. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing. Viverra vitae congue eu consequat ac felis donec et. Nisl condimentum id venenatis a condimentum. Aliquam purus sit amet luctus venenatis lectus. Pulvinar etiam non quam lacus suspendisse faucibus interdum posuere. Ac placerat vestibulum lectus mauris ultrices. Curabitur gravida arcu ac tortor dignissim. Lacinia quis vel eros donec ac odio tempor orci dapibus. Rhoncus urna neque viverra justo nec ultrices dui. In hac habitasse platea dictumst quisque sagittis purus sit amet. Pellentesque dignissim enim sit amet venenatis urna cursus. Arcu risus quis varius quam quisque id diam vel. Eget duis at tellus at. Molestie at elementum eu facilisis sed. Arcu vitae elementum curabitur vitae nunc sed velit dignissim sodales. Ornare quam viverra orci sagittis eu volutpat. Pharetra et ultrices neque ornare aenean. Venenatis lectus magna fringilla urna porttitor. Ut porttitor leo a diam sollicitudin tempor. Aliquam eleifend mi in nulla posuere sollicitudin aliquam ultrices. Tellus elementum sagittis vitae et leo duis ut.',
                 style: TextStyle(
                   fontSize: 15.0,
@@ -311,32 +306,31 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
             ),
-
-
           ],
         ),
       ),
     );
   }
-}
 
-// Popular item format
-Widget buildIconContainer() {
-  return Padding(
-    padding: const EdgeInsets.all(5.0),
-    child: Container(
-      height: 200,
-      width: 250,
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-        color: Colors.amber,
+  // Popular item format
+  Widget buildIconContainer() {
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Container(
+        height: 200,
+        width: 250,
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          color: Colors.amber,
+        ),
+        child: const Icon(
+          Icons.contacts,
+          color: Colors.white,
+          size: 100.0,
+        ),
       ),
-      child: const Icon(
-        Icons.contacts,
-        color: Colors.white, size: 100.0,
-      ),
-    ),
-  );
+    );
+  }
 }
 
 
