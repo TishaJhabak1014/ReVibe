@@ -251,7 +251,7 @@ class _HomeContentState extends State<HomeContent> {
               width: 300,
               child: FittedBox(
                 fit: BoxFit.cover,
-                child: Image.asset("assets/recycle1.png"),
+                child: Image.asset("assets/recycle.png"),
               ),
             ),
 
