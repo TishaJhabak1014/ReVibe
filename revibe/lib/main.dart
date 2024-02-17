@@ -117,9 +117,8 @@ class _MyHomePageState extends State<MyHomePage> {
               Banner(),
               DataBannerV(),
               InfoBannerV(),
-              LoginBannerV()
-
-            
+              LoginBannerV(),
+              Footer(),
             ],
           ),
         )
@@ -137,7 +136,8 @@ class _MyHomePageState extends State<MyHomePage> {
               SizedBox(height: 100.0),
               DataBannerH(),
               InfoBannerH(),
-              LoginBannerH()
+              LoginBannerH(),
+              Footer(),
             ],
           ),
         )
@@ -607,7 +607,7 @@ class LoginBannerV extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: Container(
-        height: 800,
+        height: 1000,
         color: const Color.fromARGB(255, 209, 224, 181),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -913,106 +913,26 @@ class LoginBannerH extends StatelessWidget {
   }
 }
 
+class Footer extends StatelessWidget {
+  const Footer({super.key});
 
-
-
-
-
-
-
-
-
-
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: ListView(
-//           shrinkWrap: true,
-//           children: [
-//             // Image
-//             SizedBox(
-//               height: 200,
-//               width: 200,
-//               child: FittedBox(
-//                 fit: BoxFit.cover,
-//                 child: Image.asset("assets/recycle2.png"),
-//               ),
-//             ),
-
-//             // Spacer
-//             const SizedBox(height: 75.0),
-
-
-
-//             Container(
-//               padding: const EdgeInsets.all(20.0),
-//               color: const Color(0xFFEAE8D8),
-//               child: SizedBox(
-//                 height: 1000.0,
-
-
-//                 child: Column(
-//                   children: [
-
-//                     Row(
-//                       children: [
-//                         SizedBox(
-//                           height: 300,
-//                           width: 500,
-                          
-//                           child: Container(
-//                             decoration: BoxDecoration(
-//                               border: Border.all(
-//                                 color: Colors.black, 
-//                                 width: 2.0, 
-//                               ),
-//                             ),
-
-
-//                             child: FittedBox(
-//                               fit: BoxFit.fitWidth, 
-//                               child: Image.asset("assets/recycle3.png"),
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-
-         
-//             ElevatedButton(
-//               onPressed: () {
-//                 Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                     builder: (context) => AccountMiddlewarePage(actionType: 1),
-//                   ),
-//                 );
-//               },
-//               child: const Text('Log in'),
-//             ),
-
-
-//           TextButton(
-//             onPressed: () {
-//               // Navigate to the login page when the button is pressed
-//               Navigator.push(
-//                 context,
-//                 MaterialPageRoute(builder: (context) => AccountMiddlewarePage(actionType: 2)),
-//               );
-//             },
-//             child: const Text('Not a member yet? Join Now'),
-//           ),
-            
-
-
-           
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color.fromARGB(255, 212, 211, 211), 
+      padding: const EdgeInsets.all(16.0),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '© 2024 ReVibe All Rights Reserved',
+            style: TextStyle(
+              fontSize: 12.0,
+              color: Colors.black
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
