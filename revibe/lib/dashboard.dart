@@ -333,13 +333,6 @@ class _HomeContentState extends State<HomeContent> {
   }
 }
 
-
-
-
-
-
-
-
 class RecycleContent extends StatelessWidget {
   final String userName;
   final String userID;
@@ -369,9 +362,6 @@ class RecycleContent extends StatelessWidget {
   }
 }
 
-
-
-
 class StatsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -398,10 +388,6 @@ class StatsContent extends StatelessWidget {
     );
   }
 }
-
-
-
-
 
 class ProfileContent extends StatefulWidget {
   final String userID;
