@@ -207,9 +207,7 @@ Widget _buildPage(int index, String userName, String userID) {
     case 2:
       return StatsContent(); 
     case 3:
-
       return ProfileContent(userName: userName, userID: userID); 
-
     default:
       return Container();
   }
@@ -318,25 +316,24 @@ class StatsContent extends StatelessWidget {
 
 class ProfileContent extends StatefulWidget {
   final String userID;
+  final String userName;
   
-  const ProfileContent ({super.key, required this.userID});
+  const ProfileContent({Key? key, required this.userID, required this.userName}) : super(key: key);
 
   @override
   _ProfileContentState createState() => _ProfileContentState();
 }
 
-class ProfileContent extends StatelessWidget {
-  final String userName;
-  final String userID;
-  String email= "hello";
-    TextEditingController emailAddressController = TextEditingController();
-  
 
-  ProfileContent({required this.userName, required this.userID});
+class _ProfileContentState extends State<ProfileContent> {
+  String email= "hello";
+  TextEditingController emailAddressController = TextEditingController();
+
+ 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance.collection('users').doc(userID).get(),
+      future: FirebaseFirestore.instance.collection('users').doc(widget.userID).get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator(); // Show loading indicator while waiting for data
@@ -364,7 +361,7 @@ class ProfileContent extends StatelessWidget {
                   SizedBox(height: 20),
 
                   Text(
-                    userName,
+                    widget.userName,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -388,8 +385,8 @@ class ProfileContent extends StatelessWidget {
                     SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      //Navigator.pushReplacement(context, 
-                      //MaterialPageRoute(builder: (context) => const MyApp()));
+                      Navigator.pushReplacement(context, 
+                      MaterialPageRoute(builder: (context) => const MyApp()));
                     },
                     child: const Text('Logout'),
                   ),
