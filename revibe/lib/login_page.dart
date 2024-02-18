@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:revibe/account_middleware.dart';
 import 'package:revibe/bis_dashboard.dart';
+import 'package:revibe/fund_dashboard.dart';
 
 
 
@@ -144,8 +145,19 @@ class _LoginPageState extends State<LoginPage>{
             builder: (context) => BisDashboard(businessId: businessId),
           ),
         );
-
-      }else{
+      }else if(userType == 3){
+        String userID = querySnapshot.docs.first.id;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FundDashboard(userID: userID),
+          ),
+        );
+      }
+      
+      
+      
+      else{
         Navigator.pushNamed(
           context,
           '/dashboard',
