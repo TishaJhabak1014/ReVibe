@@ -185,19 +185,10 @@ class _HomeContentState extends State<HomeContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home Content'),
+       
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => QRScannerScreen()),
-            );
-          },
-          child: const Text('Scan QR code'),
-        ),
-      ),
+      body: const BuildBody()
+      
     );
   }
 }

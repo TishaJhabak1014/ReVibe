@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:revibe/fund_signup.dart';
 import 'package:revibe/login_page.dart';
-import 'signup_page.dart'; // Assuming SignUpPage is in the same directory
+import 'signup_page.dart';
 import 'bis_signup.dart';
 
 class AccountMiddlewarePage extends StatefulWidget {
-  final int actionType; // Change the type to String
+  final int actionType; 
 
   AccountMiddlewarePage({required this.actionType});
 
@@ -14,26 +15,56 @@ class AccountMiddlewarePage extends StatefulWidget {
 }
 
 
-class _AccountMiddlewarePageState extends State<AccountMiddlewarePage>{
-  
-  @override
-  Widget build(BuildContext context) {
-    int actionType = widget.actionType; 
-    print(actionType); // Initialize userType in the build method
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Account Middleware'),
+class _AccountMiddlewarePageState extends State<AccountMiddlewarePage> {
+  @override
+  @override
+Widget build(BuildContext context) {
+  int actionType = widget.actionType; 
+
+  return Scaffold(
+    appBar: AppBar(
+      title: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Image.asset(
+              'assets/logo.png',
+              width: 60,
+              height: 60,
+            ),
+          ),
+          const Text(
+            'ReVibe',
+            style: TextStyle(
+              fontSize: 20,
+            ),
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      backgroundColor: const Color.fromRGBO(221, 242, 232, 1),
+    ),
+    body: Container(
+      color: const Color(0xFFF0F3EF),
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Select Account Type',
+              style: GoogleFonts.workSans(
+                textStyle: const TextStyle(
+                  fontSize: 35,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF107208),
+                  height: 1, 
+                ),
+              ),
+            ),
+            const SizedBox(height: 75.0),
             ElevatedButton(
               onPressed: () {
-                // Navigate to SignUpPage for normal user registration
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -44,13 +75,27 @@ class _AccountMiddlewarePageState extends State<AccountMiddlewarePage>{
                         return LoginPage(userType: 1);
                       }
                     },
-
                   ),
                 );
               },
-              child: Text('Procced as Normal User'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                  if (states.contains(MaterialState.hovered)) {
+                    return const Color(0xFF107208); 
+                  }
+                  return Colors.white;
+                }),
+                foregroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                  if (states.contains(MaterialState.hovered)) {
+                    return Colors.white; 
+                  }
+                  return Colors.black;
+                }),
+                minimumSize: MaterialStateProperty.all<Size>(const Size(300, 50)),
+              ),
+              child: const Text('Normal User'),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 25.0),
             ElevatedButton(
               onPressed: () {
                 // Navigate to SignUpPage for business registration
@@ -67,9 +112,24 @@ class _AccountMiddlewarePageState extends State<AccountMiddlewarePage>{
                   ),
                 );
               },
-              child: Text('Procced as Business'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                  if (states.contains(MaterialState.hovered)) {
+                    return const Color(0xFF107208); 
+                  }
+                  return Colors.white;
+                }),
+                foregroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                  if (states.contains(MaterialState.hovered)) {
+                    return Colors.white; 
+                  }
+                  return Colors.black;
+                }),
+                minimumSize: MaterialStateProperty.all<Size>(const Size(300, 50)),
+              ),
+              child: const Text('Business User'),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 25.0),
             ElevatedButton(
               onPressed: () {
                 // Navigate to SignUpPage for fundraiser registration
@@ -86,14 +146,29 @@ class _AccountMiddlewarePageState extends State<AccountMiddlewarePage>{
                   ),
                 );
               },
-              child: Text('Procced as Fundraiser'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                  if (states.contains(MaterialState.hovered)) {
+                    return const Color(0xFF107208); 
+                  }
+                  return Colors.white;
+                }),
+                foregroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                  if (states.contains(MaterialState.hovered)) {
+                    return Colors.white; 
+                  }
+                  return Colors.black;
+                }),
+                minimumSize: MaterialStateProperty.all<Size>(const Size(300, 50)),
+              ),
+              child: const Text('Fundraiser User'),
             ),
-
-
-            
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
+}
+
+
