@@ -111,43 +111,65 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
         body:  
-        MediaQuery.of(context).orientation == Orientation.portrait 
-        ? /* potrait */
-        Container(
-          color: const Color.fromARGB(255, 230, 223, 204), 
-          
-          child: ListView(
-            children: const [
-              Banner(),
-              DataBannerV(),
-              InfoBannerV(),
-              LoginBannerV(),
-              Footer(),
-            ],
-          ),
-        )
-
-                          
-              
-
-        : /* landscape */
-        Container(
-          color: const Color.fromARGB(255, 230, 223, 204), 
-          
-          child: ListView(
-            children: const [
-              Banner(),
-              SizedBox(height: 100.0),
-              DataBannerH(),
-              InfoBannerH(),
-              LoginBannerH(),
-              Footer(),
-            ],
-          ),
-        ),
+        const BuildBody()
+       
     );
   }
 }
+
+
+
+
+class BuildBody extends StatelessWidget {
+  const BuildBody({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      child: MediaQuery.of(context).orientation == Orientation.portrait
+          ? /* portrait */
+          Container(
+              color: const Color.fromARGB(255, 230, 223, 204),
+              child: ListView(
+                children: const [
+                  Banner(),
+                  DataBannerV(),
+                  InfoBannerV(),
+                  LoginBannerV(),
+                  Footer(),
+                ],
+              ),
+            )
+          : /* landscape */
+          Container(
+              color: const Color.fromARGB(255, 230, 223, 204),
+              child: ListView(
+                children: const [
+                  Banner(),
+                  SizedBox(height: 100.0),
+                  DataBannerH(),
+                  InfoBannerH(),
+                  LoginBannerH(),
+                  Footer(),
+                ],
+              ),
+            ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 class Banner extends StatelessWidget {

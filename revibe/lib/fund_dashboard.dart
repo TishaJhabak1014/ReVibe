@@ -229,11 +229,7 @@ class _HomeContentState extends State<HomeContent> {
    
       ),
 
-      body: Container(
-
-        child: const MyHomePage(title: 'ReVibe',)
-
-      )
+      body: const BuildBody()
       
     );
   }
