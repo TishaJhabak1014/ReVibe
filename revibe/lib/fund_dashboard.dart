@@ -106,7 +106,7 @@ class _NavigationState extends State<Navigation> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Dashboard',
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.post_add),
@@ -309,7 +309,7 @@ class _PostContentState extends State<PostContent> {
                   : const Padding(
                       padding: EdgeInsets.all(20.0),
                       child: Text(
-                        'No items available.',
+                        'No post available.',
                         style: TextStyle(
                           fontSize: 16.0,
                           color: Colors.grey,
