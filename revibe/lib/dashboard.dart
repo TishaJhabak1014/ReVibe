@@ -202,7 +202,7 @@ Widget _buildPage(int index, String userName, String userID) {
     case 2:
       return StatsContent(); 
     case 3:
-      return ProfileContent(); 
+      return ProfileContent(userName: userName, userID: userID); 
     default:
       return Container();
   }
@@ -404,8 +404,65 @@ class StatsContent extends StatelessWidget {
 
 
 class ProfileContent extends StatelessWidget {
+  final String userName;
+  final String userID;
+  String email= "hello";
+    TextEditingController emailAddressController = TextEditingController();
+  
+
+  ProfileContent({required this.userName, required this.userID});
   @override
   Widget build(BuildContext context) {
-    return Text('Profile Page Content');
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance.collection('users').doc(userID).get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Show loading indicator while waiting for data
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Text('Document does not exist.');
+        } else {
+          Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+          String email = data['email'];
+          emailAddressController.text = email;
+          return Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                ),
+                SizedBox(height: 20),
+
+                Text(
+                  userName,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Software Developer',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+                SizedBox(height: 20),
+                  TextField(
+                    controller: emailAddressController,
+                    readOnly: true,
+                    decoration: InputDecoration(labelText: 'Email Address'),
+                  ),
+                  SizedBox(height: 16),
+              ],
+            ),
+          );
+        }
+      }
+    );
   }
 }
