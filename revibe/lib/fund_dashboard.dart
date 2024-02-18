@@ -161,7 +161,6 @@ Widget _buildPage(int index, String userID) {
 }
 
 
-
 class HomeContent extends StatefulWidget {
   final String userID;
 
@@ -225,7 +224,7 @@ class _PostContentState extends State<PostContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Item Content'),
+        title: const Text('Post Content'),
       ),
 
 
@@ -262,7 +261,7 @@ class _PostContentState extends State<PostContent> {
 
                 // Text
                 child: Text(
-                  'Items',
+                  'Posts',
                   style: TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.bold,
@@ -276,7 +275,7 @@ class _PostContentState extends State<PostContent> {
                 onPressed: () {
                   _showAddItem(context);
                 },
-                child: const Text('Add Item'),
+                child: const Text('Add Post'),
               ),
 
 
@@ -347,13 +346,22 @@ class _PostContentState extends State<PostContent> {
                   postTitle = value; 
                 },
               ),
+
+              const SizedBox(height: 16),
+
               TextField(
-                decoration: const InputDecoration(labelText: 'Content'),
-                keyboardType: TextInputType.number,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  labelText: 'Content',
+                  hintText: 'Enter your content here...',
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.fromLTRB(12, 16, 12, 16),
+                ),
                 onChanged: (value) {
                   postContent = value;
                 },
-              ),
+              )
+
             ],
           ),
 
@@ -488,13 +496,20 @@ class _EditItemPageState extends State<EditItemPage> {
               const SizedBox(height: 20),
 
 
-              TextFormField(
-                controller: _postController,
-                decoration: const InputDecoration(
-                  labelText: 'Post Content',
+              SingleChildScrollView(
+                child: TextFormField(
+                  controller: _postController,
+                  decoration: const InputDecoration(
+                    labelText: 'Post Content',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.fromLTRB(12, 16, 12, 16),
+                  ),
+                  maxLines: null, // Allow multiple lines for content
                 ),
               ),
+
               const SizedBox(height: 20),
+
 
 
               ElevatedButton(

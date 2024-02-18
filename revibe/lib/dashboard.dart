@@ -324,7 +324,6 @@ class ProfileContent extends StatefulWidget {
   _ProfileContentState createState() => _ProfileContentState();
 }
 
-
 class _ProfileContentState extends State<ProfileContent> {
   String email= "hello";
   TextEditingController emailAddressController = TextEditingController();
