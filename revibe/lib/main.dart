@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'ReVibe',
       theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
+        primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: const MyHomePage(title: 'ReVibe'),
@@ -96,10 +96,14 @@ class _MyHomePageState extends State<MyHomePage> {
           actions: [
             IconButton(
               onPressed: () {
-                // Handle the action for the "Home" button
-                print("Home button pressed");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AccountMiddlewarePage(actionType: 1),
+                  ),
+                );
               },
-              icon: const Icon(Icons.home),
+              icon: const Icon(Icons.person),
             ),
           ],
         ),
@@ -221,12 +225,7 @@ class DataBannerV extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-
-
-          
-
-         
+            ),     
           ],
         ),
       ),
@@ -293,12 +292,7 @@ class DataBannerH extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-
-
-          
-
-         
+            ),    
           ],
         ),
       ),
