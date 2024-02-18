@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'main.dart';
 
 class BisDashboard extends StatefulWidget {
   final String businessId;
@@ -79,7 +81,6 @@ class Navigation extends StatefulWidget {
 }
 
 
-
 // Navigation Logic
 class _NavigationState extends State<Navigation> {
   int currentPageIndex = 0;
@@ -92,7 +93,7 @@ class _NavigationState extends State<Navigation> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Dashboard',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.article),
@@ -138,15 +139,17 @@ class _NavigationState extends State<Navigation> {
 Widget _buildPage(int index, String businessID) {
   switch (index) {
     case 0:
-      return HomeContent();
+      return HomeContent(businessId: businessID,);
     case 1:
-      return ItemContent(); 
+      return ItemContent(businessId: businessID,); 
     case 2:
       return TransactionContent(); 
     case 3:
       return CollaboratorContent(); 
     case 4:
-      return ProfileContent(businessID); 
+
+      return ProfileContent(businessID: businessID,); 
+
     default:
       return Container();
   }
@@ -154,26 +157,186 @@ Widget _buildPage(int index, String businessID) {
 
 
 
-class HomeContent extends StatelessWidget {
+
+
+
+
+class HomeContent extends StatefulWidget {
+  final String businessId;
+  
+  const HomeContent ({super.key, required this.businessId});
+
+  @override
+  _HomeContentState createState() => _HomeContentState();
+}
+
+
+
+class _HomeContentState extends State<HomeContent> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  late QRViewController controller;
+  String scannedData = '';
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Text('Home Page Content');
+    return Scaffold(
+      appBar: AppBar(
+       
+      ),
+      body: const BuildBody()
+      
+    );
   }
 }
 
 
+class QRScannerScreen extends StatefulWidget {
+  @override
+  _QRScannerScreenState createState() => _QRScannerScreenState();
+}
+
+class _QRScannerScreenState extends State<QRScannerScreen> {
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  late QRViewController controller;
+  String scannedData = '';
+  bool isDisplayScreenShown = false;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Scan QR Code'),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: QRView(
+              key: qrKey,
+              onQRViewCreated: _onQRViewCreated,
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context, scannedData);
+            },
+            child: const Text('Close Scanner'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    this.controller = controller;
+    controller.scannedDataStream.listen((scanData) {
+      setState(() {
+        scannedData = scanData.code!;
+        if (!isDisplayScreenShown) {
+          isDisplayScreenShown = true;
+          _navigateToDisplayScreen(scannedData);
+        }
+        controller.stopCamera();
+      });
+    });
+  }
+
+  void _navigateToDisplayScreen(String scannedData) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DisplayScannedDataScreen(scannedData: scannedData),
+      ),
+    ).then((_) {
+      isDisplayScreenShown = false;
+    });
+  }
+}
+
+class DisplayScannedDataScreen extends StatelessWidget {
+  final String scannedData;
+
+  const DisplayScannedDataScreen({Key? key, required this.scannedData})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Parse the scanned data here
+    final parsedData = _parseScannedData(scannedData);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Scanned QR Code'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Information',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              parsedData,
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _parseScannedData(String scannedData) {
+  final parts = scannedData.split('|');
+
+  if (parts.length >= 2) {
+    return 'UserID: ${parts[0]}\nItemID: ${parts[1]}';
+  } else {
+    return 'Error: Unable to parse scanned data.';
+  }
+}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class ItemContent extends StatefulWidget {
-  const ItemContent ({super.key});
+  final String businessId;
+  
+  const ItemContent ({super.key, required this.businessId});
 
   @override
   _ItemContentState createState() => _ItemContentState();
 }
 
-
-class _ItemContentState extends State<ItemContent > {
-  // Initial point threshold value
-  int _pointThreshold = 0; 
-
+class _ItemContentState extends State<ItemContent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -183,13 +346,20 @@ class _ItemContentState extends State<ItemContent > {
 
 
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('scannable_items_org').snapshots(),
+
+        // check for items matching businessID
+        stream: FirebaseFirestore.instance
+            .collection('scannable_items_org')
+            .where('businessId', isEqualTo: widget.businessId)
+            .snapshots(),
         builder: (context, snapshot) {
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
+
           if (snapshot.hasError) {
             return Center(
               child: Text('Error: ${snapshot.error}'),
@@ -203,13 +373,11 @@ class _ItemContentState extends State<ItemContent > {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
-
-              // Text 
               const Padding(
                 padding: EdgeInsets.all(20.0),
-                child: 
-                
-                Text(
+
+                // Text
+                child: Text(
                   'Items',
                   style: TextStyle(
                     fontSize: 18.0,
@@ -219,21 +387,52 @@ class _ItemContentState extends State<ItemContent > {
                 ),
               ),
 
+              // Add item button
+              ElevatedButton(
+                onPressed: () {
+                  _showAddItem(context);
+                },
+                child: const Text('Add Item'),
+              ),
+
+
 
 
               // Item list
-              Expanded(
-                child: ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    var item = items[index];
-                    var itemName = item['name']; 
-                    return ListTile(
-                      title: Text(itemName),
-                    );
-                  },
-                ),
-              ),
+              items.isNotEmpty
+                  ? Expanded(
+                      child: ListView.builder(
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          var item = items[index];
+                          var itemName = item['name'];
+                          var itemPoints = item['points'];
+
+                          return InkWell(
+                            onTap: () {
+                              _showEditItem(context, item.id);
+                            },
+                            child: ListTile(
+                              title: Text(
+                                itemName,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text('Points: $itemPoints'),
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  : const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text(
+                        'No items available.',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
             ],
           );
         },
@@ -242,66 +441,196 @@ class _ItemContentState extends State<ItemContent > {
   }
 
 
+  // Function to show the dialog box for adding an item
+  Future<void> _showAddItem(BuildContext context) async {
+    String itemName = ''; 
+    int itemPoints = 0;
 
-
-  // Edit points button
-  Future<void> _editBusinessPointThresholdDialog(BuildContext context) async {
     return showDialog(
       context: context,
-
       builder: (BuildContext context) {
         return AlertDialog(
 
-          // Title 
-          title: const Text('Edit Point Threshold'),
 
-
-          // Title
-          content: TextField(
-            decoration: const InputDecoration(
-              labelText: 'New Point Threshold',
-            ),
-            keyboardType: TextInputType.number,
-            controller: TextEditingController(text: _pointThreshold.toString()), // Set initial value here
-            onChanged: (String value) {
-              setState(() {
-                _pointThreshold = value.isEmpty ? 0 : int.tryParse(value) ?? _pointThreshold;
-              });
-            },
+          // title
+          title: const Text('Add New Item'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: const InputDecoration(labelText: 'Item Name'),
+                onChanged: (value) {
+                  itemName = value; 
+                },
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Item Points'),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  itemPoints = int.tryParse(value) ?? 0;
+                },
+              ),
+            ],
           ),
 
 
-          // Actions
+          // user actions
           actions: <Widget>[
-
-
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); 
               },
               child: const Text('Cancel'),
             ),
-
-
             TextButton(
               onPressed: () {
-                // Perform any action here with the updated threshold value
-                // For example, you can save it to preferences or send it to the server.
-                print('New Point Threshold: $_pointThreshold');
+                _addItemToFirestore(itemName, itemPoints, widget.businessId);
                 Navigator.of(context).pop();
               },
-              child: const Text('Save'),
+              child: const Text('Add'),
             ),
-
-
           ],
         );
       },
     );
   }
+
+  // Function to show edit item dialog
+  void _showEditItem(BuildContext context, String itemId) {
+    FirebaseFirestore.instance.collection('scannable_items_org').doc(itemId).get().then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        String itemName = documentSnapshot['name'];
+        int itemPoints = documentSnapshot['points'];
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Item Action'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+
+                    // Edit 
+                    leading: const Icon(Icons.edit),
+                    title: const Text('Edit'),
+                    onTap: () {
+                      Navigator.pop(context); 
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditItemPage(itemId: itemId, itemName: itemName, itemPoints: itemPoints),
+                        ),
+                      );
+                    },
+                  ),
+
+
+                  // Delete
+                  ListTile(
+                    leading: const Icon(Icons.delete),
+                    title: const Text('Delete'),
+                    onTap: () {
+                      Navigator.pop(context); 
+                      _deleteItem(itemId); 
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      } else {
+        print('Document does not exist');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+  }
+
 }
 
+class EditItemPage extends StatefulWidget {
+  final String itemId;
+  final String itemName;
+  final int itemPoints;
 
+  EditItemPage({required this.itemId, required this.itemName, required this.itemPoints});
+
+  @override
+  _EditItemPageState createState() => _EditItemPageState();
+}
+
+class _EditItemPageState extends State<EditItemPage> {
+  late TextEditingController _nameController;
+  late TextEditingController _pointsController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.itemName);
+    _pointsController = TextEditingController(text: widget.itemPoints.toString());
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _pointsController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit Item'),
+      ),
+      body: Center(
+
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+
+
+            children: <Widget>[
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Item Name',
+                ),
+              ),
+              const SizedBox(height: 20),
+
+
+              TextFormField(
+                controller: _pointsController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Item Points',
+                ),
+              ),
+              const SizedBox(height: 20),
+
+
+              ElevatedButton(
+                onPressed: () {
+                  // Handle saving changes here
+                  String newName = _nameController.text;
+                  int newPoints = int.tryParse(_pointsController.text) ?? 0;
+                  _editItem(widget.itemId, newName, newPoints);
+                  Navigator.pop(context);
+                },
+                child: const Text('Save Changes'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class TransactionContent extends StatelessWidget {
   @override
@@ -309,7 +638,6 @@ class TransactionContent extends StatelessWidget {
     return Text('Transaction Page Content');
   }
 }
-
 
 class CollaboratorContent extends StatelessWidget {
   @override
@@ -319,19 +647,22 @@ class CollaboratorContent extends StatelessWidget {
 }
 
 
-class ProfileContent extends StatelessWidget {
+class ProfileContent extends StatefulWidget {
   final String businessID;
-  String email= "hello";
-    TextEditingController emailAddressController = TextEditingController();
-    TextEditingController abnController = TextEditingController();
-
   
+  const ProfileContent ({super.key, required this.businessID});
 
-  ProfileContent(this.businessID);
+  @override
+  _ProfileContentState createState() => _ProfileContentState();
+}
+
+class _ProfileContentState extends State<ProfileContent> {
+  TextEditingController emailAddressController = TextEditingController();
+  TextEditingController abnController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance.collection('businesses').doc(businessID).get(),
+      future: FirebaseFirestore.instance.collection('businesses').doc(widget.businessID).get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator(); // Show loading indicator while waiting for data
@@ -346,46 +677,58 @@ class ProfileContent extends StatelessWidget {
           String abn = data['abn'];
           String userName = data['firstName'];
           abnController.text = email;
-          return Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                ),
-                SizedBox(height: 20),
-
-                Text(
-                  userName,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Business',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                ),
-                SizedBox(height: 20),
-                  TextField(
-                    controller: emailAddressController,
-                    readOnly: true,
-                    decoration: InputDecoration(labelText: 'Email Address'),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: abnController,
-                    readOnly: true,
-                    decoration: InputDecoration(labelText: 'ABN'),
-                  ),
-                  SizedBox(height: 16),
-              ],
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Profile'),
             ),
+            body: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                  ),
+                  SizedBox(height: 20),
+
+                  Text(
+                    userName,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Business',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                    TextField(
+                      controller: emailAddressController,
+                      readOnly: true,
+                      decoration: InputDecoration(labelText: 'Email Address'),
+                    ),
+                    SizedBox(height: 16),
+                    TextField(
+                      controller: abnController,
+                      readOnly: true,
+                      decoration: InputDecoration(labelText: 'ABN'),
+                    ),
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        //Navigator.pushReplacement(context, 
+                        //MaterialPageRoute(builder: (context) => const MyApp()));
+                      },
+                      child: const Text('Logout'),
+                   ),
+                ],
+              ),
+            )
           );
         }
       }
@@ -393,3 +736,48 @@ class ProfileContent extends StatelessWidget {
   }
 }
 
+
+
+
+
+
+
+
+
+// Function to add an item to Firestore
+Future<void> _addItemToFirestore(String itemName, int itemPoints, String businessId) async {
+  try {
+    await FirebaseFirestore.instance.collection('scannable_items_org').add({
+      'name': itemName,
+      'points': itemPoints,
+      'businessId': businessId,
+    });
+    print('Item added to Firestore');
+  } catch (e) {
+    print('Error adding item to Firestore: $e');
+  }
+}
+
+// Function to edit an item in Firestore
+Future<void> _editItem(String itemId, String newName, int newPoints) async {
+  try {
+    await FirebaseFirestore.instance.collection('scannable_items_org').doc(itemId).update({
+      'name': newName,
+      'points': newPoints,
+    });
+    print('Item with ID $itemId edited successfully');
+  } catch (e) {
+    print('Error editing item with ID $itemId: $e');
+  }
+}
+
+// Function to delete an item in Firestore
+Future<void> _deleteItem(String itemId) async {
+  try {
+    await FirebaseFirestore.instance.collection('scannable_items_org').doc(itemId).delete();
+    print('Item with ID $itemId deleted successfully');
+  } catch (e) {
+    print('Error deleting item with ID $itemId: $e');
+    // Handle error accordingly
+  }
+}

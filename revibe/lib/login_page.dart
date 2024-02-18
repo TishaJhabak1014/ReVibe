@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert';
 import 'package:revibe/account_middleware.dart';
 import 'package:revibe/bis_dashboard.dart';
+import 'package:revibe/fund_dashboard.dart';
 
 
 
@@ -106,12 +107,12 @@ class _LoginPageState extends State<LoginPage>{
 
       if (querySnapshot.docs.isNotEmpty) {
         // Matching record found, perform login actions
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Login successful'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: const Text('Login successful'),
+        //     backgroundColor: Colors.green,
+        //   ),
+        // );
         // print('Login successful');
 
         // Redirect to the dashboard page
@@ -144,8 +145,19 @@ class _LoginPageState extends State<LoginPage>{
             builder: (context) => BisDashboard(businessId: businessId),
           ),
         );
-
-      }else{
+      }else if(userType == 3){
+        String userID = querySnapshot.docs.first.id;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FundDashboard(userID: userID),
+          ),
+        );
+      }
+      
+      
+      
+      else{
         Navigator.pushNamed(
           context,
           '/dashboard',
