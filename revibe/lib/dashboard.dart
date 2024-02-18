@@ -207,7 +207,9 @@ Widget _buildPage(int index, String userName, String userID) {
     case 2:
       return StatsContent(); 
     case 3:
-      return ProfileContent(userID: userID,); 
+
+      return ProfileContent(userName: userName, userID: userID); 
+
     default:
       return Container();
   }
@@ -323,22 +325,81 @@ class ProfileContent extends StatefulWidget {
   _ProfileContentState createState() => _ProfileContentState();
 }
 
-class _ProfileContentState extends State<ProfileContent> {
+class ProfileContent extends StatelessWidget {
+  final String userName;
+  final String userID;
+  String email= "hello";
+    TextEditingController emailAddressController = TextEditingController();
+  
+
+  ProfileContent({required this.userName, required this.userID});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushReplacement(context, 
-            MaterialPageRoute(builder: (context) => const MyApp()));
-          },
-          child: const Text('Logout'),
-        ),
-      ),
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance.collection('users').doc(userID).get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Show loading indicator while waiting for data
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Text('Document does not exist.');
+        } else {
+          Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+          String email = data['email'];
+          emailAddressController.text = email;
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Profile'),
+            ),
+            body: Padding(
+            padding: EdgeInsets.all(16.0),
+              child: Column(
+
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                  ),
+                  SizedBox(height: 20),
+
+                  Text(
+                    userName,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'user',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                    TextField(
+                      controller: emailAddressController,
+                      readOnly: true,
+                      decoration: InputDecoration(labelText: 'Email Address'),
+                    ),
+                    SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      //Navigator.pushReplacement(context, 
+                      //MaterialPageRoute(builder: (context) => const MyApp()));
+                    },
+                    child: const Text('Logout'),
+                  ),
+                ],
+              ),
+              
+            )
+          );
+        }
+      }
     );
   }
 }
