@@ -78,7 +78,7 @@ class _BisSignUpState extends State<BisSignUp> {
       
       body: SingleChildScrollView(
       child: Container(
-        padding: const EdgeInsets.fromLTRB(100.0, 10.0, 100.0, 10.0),
+        padding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 10.0),
         color: const Color(0xFFF0F3EF),
         child:
           Form(

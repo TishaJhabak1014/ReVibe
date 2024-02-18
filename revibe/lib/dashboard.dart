@@ -159,7 +159,7 @@ class _NavigationState extends State<Navigation> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Dashboard',
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.recycling),
@@ -196,7 +196,6 @@ class _NavigationState extends State<Navigation> {
   }
 }
 
-
 // Function to build content based on the selected index
 Widget _buildPage(int index, String userName, String userID) {
   switch (index) {
@@ -212,8 +211,6 @@ Widget _buildPage(int index, String userName, String userID) {
       return Container();
   }
 }
-
-
 
 class HomeContent extends StatefulWidget {
   final String userName;

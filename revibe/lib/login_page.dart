@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:revibe/account_middleware.dart';
 import 'package:revibe/bis_dashboard.dart';
@@ -36,55 +37,128 @@ class _LoginPageState extends State<LoginPage>{
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Log In'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        title: Row(
           children: [
-            // Email field
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Image.asset(
+                'assets/logo.png',
+                width: 60,
+                height: 60,
+              ),
             ),
-            const SizedBox(height: 16),
-
-            // Password field
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16),
-
-            // Log In button
-            ElevatedButton(
-              onPressed: () {
-                // Add logic for handling login
-                String email = emailController.text;
-                String password = passwordController.text;
-
-                // Perform further actions, e.g., check in the database
-                _performLogin(context, userType, email, password);
-              },
-              child: const Text('Log In'),
-            ),
-
-            // Log In button to redirect to a different page
-            TextButton(
-              onPressed: () {
-                // Navigate to the login page when the button is pressed
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AccountMiddlewarePage(actionType: 2)), // Assuming LoginPage is your login page
-                );
-              },
-              child: Text('Not a member yet? Join Now'),
+            const Text(
+              'ReVibe',
+              style: TextStyle(
+                fontSize: 20,
+              ),
             ),
           ],
         ),
+        backgroundColor: const Color.fromRGBO(221, 242, 232, 1),
       ),
+
+      
+      body: Container(
+        color: const Color(0xFFF0F3EF),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 10.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Login',
+                  style: GoogleFonts.workSans(
+                    textStyle: const TextStyle(
+                      fontSize: 35,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF107208),
+                      height: 1, 
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 75.0),
+
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: 'Email'),
+                ),
+                const SizedBox(height: 16),
+
+                // Password field
+                TextField(
+                  controller: passwordController,
+                  decoration: const InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 16),
+
+                // Log In button
+                ElevatedButton(
+                  onPressed: () {
+                    // Add logic for handling login
+                    String email = emailController.text;
+                    String password = passwordController.text;
+
+                    // Perform further actions, e.g., check in the database
+                    _performLogin(context, userType, email, password);
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                      if (states.contains(MaterialState.hovered)) {
+                        return const Color(0xFF107208); 
+                      }
+                      return Colors.white;
+                    }),
+                    foregroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                      if (states.contains(MaterialState.hovered)) {
+                        return Colors.white; 
+                      }
+                      return Colors.black;
+                    }),
+                    minimumSize: MaterialStateProperty.all<Size>(const Size(300, 50)),
+                  ),
+                  child: const Text('Log In'),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Log In button to redirect to a different page
+                ElevatedButton(
+                  onPressed: () {
+                    // Navigate to the login page when the button is pressed
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AccountMiddlewarePage(actionType: 2)), // Assuming LoginPage is your login page
+                    );
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                      if (states.contains(MaterialState.hovered)) {
+                        return const Color(0xFF107208); 
+                      }
+                      return Colors.white;
+                    }),
+                    foregroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                      if (states.contains(MaterialState.hovered)) {
+                        return Colors.white; 
+                      }
+                      return Colors.black;
+                    }),
+                    minimumSize: MaterialStateProperty.all<Size>(const Size(300, 50)),
+                  ),
+                  child: const Text('Not a member yet? Join Now'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+
+  
+    
     );
   }
 
@@ -189,3 +263,68 @@ class _LoginPageState extends State<LoginPage>{
   }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             // Email field
+//             TextField(
+//               controller: emailController,
+//               decoration: const InputDecoration(labelText: 'Email'),
+//             ),
+//             const SizedBox(height: 16),
+
+//             // Password field
+//             TextField(
+//               controller: passwordController,
+//               decoration: const InputDecoration(labelText: 'Password'),
+//               obscureText: true,
+//             ),
+//             const SizedBox(height: 16),
+
+//             // Log In button
+//             ElevatedButton(
+//               onPressed: () {
+//                 // Add logic for handling login
+//                 String email = emailController.text;
+//                 String password = passwordController.text;
+
+//                 // Perform further actions, e.g., check in the database
+//                 _performLogin(context, userType, email, password);
+//               },
+//               child: const Text('Log In'),
+//             ),
+
+//             // Log In button to redirect to a different page
+//             TextButton(
+//               onPressed: () {
+//                 // Navigate to the login page when the button is pressed
+//                 Navigator.push(
+//                   context,
+//                   MaterialPageRoute(builder: (context) => AccountMiddlewarePage(actionType: 2)), // Assuming LoginPage is your login page
+//                 );
+//               },
+//               child: Text('Not a member yet? Join Now'),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );

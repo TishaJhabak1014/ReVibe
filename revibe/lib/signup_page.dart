@@ -1,6 +1,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'main.dart'; 
 import 'dart:async'; 
 import 'package:crypto/crypto.dart';
@@ -49,93 +50,148 @@ class _SignUpPageState extends State<SignUpPage> {
       //   title: const Text('Sign Up'),
       // ),
       appBar: AppBar(
-        title: Text('Sign Up - $userType'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        title: Row(
           children: [
-            TextField(
-              controller: firstNameController,
-              decoration: InputDecoration(labelText: 'First Name'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Image.asset(
+                'assets/logo.png',
+                width: 60,
+                height: 60,
+              ),
             ),
-            SizedBox(height: 16),
-            TextField(
-              controller: emailAddressController,
-              decoration: InputDecoration(labelText: 'Email Address'),
+            const Text(
+              'ReVibe',
+              style: TextStyle(
+                fontSize: 20,
+              ),
             ),
-            SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            TextField(
-              controller: confirmPasswordController,
-              decoration: InputDecoration(labelText: 'Confirm Password'),
-              obscureText: true,
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                // form submission logic here
-                String firstName = firstNameController.text;
-                String emailAddress = emailAddressController.text;
-                String password = passwordController.text;
-                String confirmPassword = confirmPasswordController.text;
-
-                // Validate the input if needed
-                // Print values to console
-                // print('First Name: $firstName');
-                print('test: $confirmPassword $password');
-
-                // Validate the input
-                if (firstName.isEmpty || emailAddress.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-                  // Display an error message
-                  setState(() {
-                    errorMessage = 'All fields are required';
-                  });
-                  return;
-                }
-
-                if (!isValidEmail(emailAddress)) {
-                  // Display an error message
-                  setState(() {
-                    errorMessage = 'Invalid email address';
-                  });
-                  return;
-                }
-
-                if (password != confirmPassword) {
-                  // Display an error message
-                  setState(() {
-                    errorMessage = 'Passwords do not match';
-                  });
-                  return;
-                }
-
-                // Hash the password
-                String hashedPassword = hashPassword(password);
-                // Perform further actions, for example, send data to Firebase
-                await _submitToFirebase(context, firstName, emailAddress, hashedPassword);
-
-              },
-              child: const Text('Submit'),
-            ),
-
-            if (errorMessage.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  errorMessage,
-                  style: TextStyle(color: Colors.red),
-                ),
-             ),
-
           ],
         ),
+        backgroundColor: const Color.fromRGBO(221, 242, 232, 1),
       ),
+      
+      body: Container(
+        color: const Color(0xFFF0F3EF),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 10.0, 10.0, 10.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Sign Up',
+                  style: GoogleFonts.workSans(
+                    textStyle: const TextStyle(
+                      fontSize: 35,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF107208),
+                      height: 1, 
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 75.0),
+
+                TextField(
+                  controller: firstNameController,
+                  decoration: InputDecoration(labelText: 'First Name'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: emailAddressController,
+                  decoration: InputDecoration(labelText: 'Email Address'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: passwordController,
+                  decoration: InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: confirmPasswordController,
+                  decoration: InputDecoration(labelText: 'Confirm Password'),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 16),
+
+                ElevatedButton(
+                  onPressed: () async {
+                    // form submission logic here
+                    String firstName = firstNameController.text;
+                    String emailAddress = emailAddressController.text;
+                    String password = passwordController.text;
+                    String confirmPassword = confirmPasswordController.text;
+
+                    // Validate the input if needed
+                    // Print values to console
+                    // print('First Name: $firstName');
+                    print('test: $confirmPassword $password');
+
+                    // Validate the input
+                    if (firstName.isEmpty || emailAddress.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+                      // Display an error message
+                      setState(() {
+                        errorMessage = 'All fields are required';
+                      });
+                      return;
+                    }
+
+                    if (!isValidEmail(emailAddress)) {
+                      // Display an error message
+                      setState(() {
+                        errorMessage = 'Invalid email address';
+                      });
+                      return;
+                    }
+
+                    if (password != confirmPassword) {
+                      // Display an error message
+                      setState(() {
+                        errorMessage = 'Passwords do not match';
+                      });
+                      return;
+                    }
+
+                    // Hash the password
+                    String hashedPassword = hashPassword(password);
+                    // Perform further actions, for example, send data to Firebase
+                    await _submitToFirebase(context, firstName, emailAddress, hashedPassword);
+
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                      if (states.contains(MaterialState.hovered)) {
+                        return const Color(0xFF107208); 
+                      }
+                      return Colors.white;
+                    }),
+                    foregroundColor: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                      if (states.contains(MaterialState.hovered)) {
+                        return Colors.white; 
+                      }
+                      return Colors.black;
+                    }),
+                    minimumSize: MaterialStateProperty.all<Size>(const Size(300, 50)),
+                  ),
+                  child: const Text('Submit'),
+                ),
+
+                if (errorMessage.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      errorMessage,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                ),
+
+              ],
+            ),
+          ),
+        )
+      )
     );
   }
 
@@ -173,3 +229,5 @@ class _SignUpPageState extends State<SignUpPage> {
 
   }
 }
+
+
