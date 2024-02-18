@@ -147,9 +147,7 @@ Widget _buildPage(int index, String businessID) {
     case 3:
       return CollaboratorContent(); 
     case 4:
-
-      return ProfileContent(businessID: businessID,); 
-
+      return ProfileContent(businessId: businessID,); 
     default:
       return Container();
   }
@@ -187,10 +185,19 @@ class _HomeContentState extends State<HomeContent> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-       
+        title: const Text('Home Content'),
       ),
-      body: const BuildBody()
-      
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => QRScannerScreen()),
+            );
+          },
+          child: const Text('Scan QR code'),
+        ),
+      ),
     );
   }
 }
@@ -439,61 +446,122 @@ class _ItemContentState extends State<ItemContent> {
       ),
     );
   }
+// change 
+Future<void> _showAddItem(BuildContext context) async {
+  String selectedItemName = ''; // Store the selected item name
+  int itemPoints = 0;
 
+  // Fetch current items' names from Firebase and update the currentItems list
+  List<String> currentItems = ['Others'];
 
-  // Function to show the dialog box for adding an item
-  Future<void> _showAddItem(BuildContext context) async {
-    String itemName = ''; 
-    int itemPoints = 0;
+  try {
+    QuerySnapshot itemsSnapshot = await FirebaseFirestore.instance
+        .collection('items') // Assuming 'items' is the collection name
+        .get();
 
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
+    currentItems.addAll(itemsSnapshot.docs.map((doc) => doc['name']));
+  } catch (e) {
+    print('Error fetching items: $e');
+  }
 
+  // Ensure selectedItemName is a valid value in currentItems
+  if (!currentItems.contains(selectedItemName)) {
+    selectedItemName = currentItems.first;
+  }
 
-          // title
-          title: const Text('Add New Item'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Add New Item'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DropdownButton<String>(
+              value: selectedItemName,
+              items: currentItems.map((String item) {
+                return DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(item),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    selectedItemName = newValue;
+                  });
+                }
+              },
+            ),
+            // Display the blank field if 'Others' is selected
+            if (selectedItemName == 'Others')
               TextField(
                 decoration: const InputDecoration(labelText: 'Item Name'),
                 onChanged: (value) {
-                  itemName = value; 
+                  selectedItemName = value;
                 },
               ),
-              TextField(
-                decoration: const InputDecoration(labelText: 'Item Points'),
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  itemPoints = int.tryParse(value) ?? 0;
-                },
-              ),
-            ],
-          ),
-
-
-          // user actions
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); 
+            TextField(
+              decoration: const InputDecoration(labelText: 'Item Points'),
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                itemPoints = int.tryParse(value) ?? 0;
               },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                _addItemToFirestore(itemName, itemPoints, widget.businessId);
-                Navigator.of(context).pop();
-              },
-              child: const Text('Add'),
             ),
           ],
-        );
-      },
-    );
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if(selectedItemName == 'Others'){
+                await _addNewItemToFirestore(selectedItemName);
+              }
+              // Update currentItems after adding a new item
+              try {
+                QuerySnapshot updatedItemsSnapshot = await FirebaseFirestore.instance
+                    .collection('items')
+                    .get();
+                currentItems = ['Others']
+                  ..addAll(updatedItemsSnapshot.docs.map((doc) => doc['name']));
+              } catch (e) {
+                print('Error fetching updated items: $e');
+              }
+              _addItemToFirestore(
+                selectedItemName,
+                itemPoints,
+                widget.businessId,
+              );
+              Navigator.of(context).pop();
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+// Function to check if the 'items' collection exists
+Future<bool> _checkItemsCollectionExists() async {
+  try {
+    QuerySnapshot itemsSnapshot = await FirebaseFirestore.instance
+        .collection('items') // Assuming 'items' is the collection name
+        .limit(1)
+        .get();
+
+    return itemsSnapshot.docs.isNotEmpty;
+  } catch (e) {
+    return false;
   }
+}
+
 
   // Function to show edit item dialog
   void _showEditItem(BuildContext context, String itemId) {
@@ -632,9 +700,6 @@ class _EditItemPageState extends State<EditItemPage> {
   }
 }
 
-
-
-
 class TransactionContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -650,91 +715,35 @@ class CollaboratorContent extends StatelessWidget {
 }
 
 
+
+
+
+
 class ProfileContent extends StatefulWidget {
-  final String businessID;
+  final String businessId;
   
-  const ProfileContent ({super.key, required this.businessID});
+  const ProfileContent ({super.key, required this.businessId});
 
   @override
   _ProfileContentState createState() => _ProfileContentState();
 }
 
 class _ProfileContentState extends State<ProfileContent> {
-  TextEditingController emailAddressController = TextEditingController();
-  TextEditingController abnController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance.collection('businesses').doc(widget.businessID).get(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator while waiting for data
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else if (!snapshot.hasData || !snapshot.data!.exists) {
-          return Text('Document does not exist.');
-        } else {
-          Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
-          String email = data['email'];
-          emailAddressController.text = email;
-          String abn = data['abn'];
-          String userName = data['firstName'];
-          abnController.text = email;
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Profile'),
-            ),
-            body: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                  ),
-                  SizedBox(height: 20),
-
-                  Text(
-                    userName,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Business',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                    TextField(
-                      controller: emailAddressController,
-                      readOnly: true,
-                      decoration: InputDecoration(labelText: 'Email Address'),
-                    ),
-                    SizedBox(height: 16),
-                    TextField(
-                      controller: abnController,
-                      readOnly: true,
-                      decoration: InputDecoration(labelText: 'ABN'),
-                    ),
-                    SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        //Navigator.pushReplacement(context, 
-                        //MaterialPageRoute(builder: (context) => const MyApp()));
-                      },
-                      child: const Text('Logout'),
-                   ),
-                ],
-              ),
-            )
-          );
-        }
-      }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pushReplacement(context, 
+            MaterialPageRoute(builder: (context) => const MyApp()));
+          },
+          child: const Text('Logout'),
+        ),
+      ),
     );
   }
 }
@@ -742,7 +751,17 @@ class _ProfileContentState extends State<ProfileContent> {
 
 
 
-
+// Function to add an item to Firestore
+Future<void> _addNewItemToFirestore(String itemName) async {
+  try {
+    await FirebaseFirestore.instance.collection('items').add({
+      'name': itemName
+    });
+    print('New item added to Firestore');
+  } catch (e) {
+    print('Error adding item to Firestore: $e');
+  }
+}
 
 
 
