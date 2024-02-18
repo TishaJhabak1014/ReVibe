@@ -446,121 +446,123 @@ class _ItemContentState extends State<ItemContent> {
       ),
     );
   }
-// change 
-Future<void> _showAddItem(BuildContext context) async {
-  String selectedItemName = ''; // Store the selected item name
-  int itemPoints = 0;
 
-  // Fetch current items' names from Firebase and update the currentItems list
-  List<String> currentItems = ['Others'];
 
-  try {
-    QuerySnapshot itemsSnapshot = await FirebaseFirestore.instance
-        .collection('items') // Assuming 'items' is the collection name
-        .get();
+  // change 
+  Future<void> _showAddItem(BuildContext context) async {
+    bool showTextField = false; 
+    String dropdownvalue = 'Paper Cup';
+    String selectedItemName = dropdownvalue;
+    int itemPoints = 0;
 
-    currentItems.addAll(itemsSnapshot.docs.map((doc) => doc['name']));
-  } catch (e) {
-    print('Error fetching items: $e');
-  }
 
-  // Ensure selectedItemName is a valid value in currentItems
-  if (!currentItems.contains(selectedItemName)) {
-    selectedItemName = currentItems.first;
-  }
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('item_category')
+          .get();
 
-  return showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Add New Item'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DropdownButton<String>(
-              value: selectedItemName,
-              items: currentItems.map((String item) {
-                return DropdownMenuItem<String>(
-                  value: item,
-                  child: Text(item),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    selectedItemName = newValue;
-                  });
-                }
-              },
-            ),
-            // Display the blank field if 'Others' is selected
-            if (selectedItemName == 'Others')
-              TextField(
-                decoration: const InputDecoration(labelText: 'Item Name'),
-                onChanged: (value) {
-                  selectedItemName = value;
-                },
+      List<String> itemCategories = []; // List to store item categories
+
+      // Extract item categories from documents
+      querySnapshot.docs.forEach((doc) {
+        itemCategories.add(doc['name']);
+      });
+
+
+      // ignore: use_build_context_synchronously
+      return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              // title
+              title: const Text('Add New Item'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+
+                 Row(
+                  children: [
+                    const Text(
+                      'Item Category:', 
+                      style: TextStyle(fontSize: 16), 
+                    ),
+                    const SizedBox(width: 10), 
+                    DropdownButton<String>(
+                      value: dropdownvalue,
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      items: itemCategories.map((String item) {
+                        return DropdownMenuItem<String>(
+                          value: item,
+                          child: Text(item),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          dropdownvalue = newValue!;
+                          showTextField = newValue == 'Others';
+                          selectedItemName = newValue == 'Other' ? '' : newValue;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
+                // Conditionally show/hide the text field
+                Visibility(
+                  visible: showTextField,
+                  child: Flexible(
+                    child: TextField(
+                     
+                      onChanged: (value) {
+                        setState(() {
+                          selectedItemName = value;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Other Category',
+                      ),
+                    ),
+                  ),
+                ),
+
+                TextField(
+                  decoration: const InputDecoration(labelText: 'Item Points'),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    itemPoints = int.tryParse(value) ?? 0;
+                  },
+                ),
+
+                ],
               ),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Item Points'),
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                itemPoints = int.tryParse(value) ?? 0;
-              },
-            ),
-          ],
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              if(selectedItemName == 'Others'){
-                await _addNewItemToFirestore(selectedItemName);
-              }
-              // Update currentItems after adding a new item
-              try {
-                QuerySnapshot updatedItemsSnapshot = await FirebaseFirestore.instance
-                    .collection('items')
-                    .get();
-                currentItems = ['Others']
-                  ..addAll(updatedItemsSnapshot.docs.map((doc) => doc['name']));
-              } catch (e) {
-                print('Error fetching updated items: $e');
-              }
-              _addItemToFirestore(
-                selectedItemName,
-                itemPoints,
-                widget.businessId,
-              );
-              Navigator.of(context).pop();
-            },
-            child: const Text('Add'),
-          ),
-        ],
+
+              // user actions
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    print('Selected Item Name: $selectedItemName');
+                    print('Item Points: $itemPoints');
+                    _addItemToFirestore(selectedItemName, itemPoints, widget.businessId);
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Add'),
+                ),
+              ],
+            );
+          });
+        },
       );
-    },
-  );
-}
-
-
-// Function to check if the 'items' collection exists
-Future<bool> _checkItemsCollectionExists() async {
-  try {
-    QuerySnapshot itemsSnapshot = await FirebaseFirestore.instance
-        .collection('items') // Assuming 'items' is the collection name
-        .limit(1)
-        .get();
-
-    return itemsSnapshot.docs.isNotEmpty;
-  } catch (e) {
-    return false;
+    } catch (e) {
+      print("Error fetching data: $e");
+    }
   }
-}
 
 
   // Function to show edit item dialog
@@ -751,6 +753,23 @@ class _ProfileContentState extends State<ProfileContent> {
 
 
 
+
+
+
+// Function to check if the 'items' collection exists
+Future<bool> _checkItemsCollectionExists() async {
+  try {
+    QuerySnapshot itemsSnapshot = await FirebaseFirestore.instance
+        .collection('items') // Assuming 'items' is the collection name
+        .limit(1)
+        .get();
+
+    return itemsSnapshot.docs.isNotEmpty;
+  } catch (e) {
+    return false;
+  }
+}
+
 // Function to add an item to Firestore
 Future<void> _addNewItemToFirestore(String itemName) async {
   try {
@@ -762,9 +781,6 @@ Future<void> _addNewItemToFirestore(String itemName) async {
     print('Error adding item to Firestore: $e');
   }
 }
-
-
-
 
 // Function to add an item to Firestore
 Future<void> _addItemToFirestore(String itemName, int itemPoints, String businessId) async {
@@ -803,3 +819,92 @@ Future<void> _deleteItem(String itemId) async {
     // Handle error accordingly
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+  //   return showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Add New Item'),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             DropdownButton<String>(
+  //               value: selectedItemName,
+  //               items: currentItems.map((String item) {
+  //                 return DropdownMenuItem<String>(
+  //                   value: item,
+  //                   child: Text(item),
+  //                 );
+  //               }).toList(),
+  //               onChanged: (String? newValue) {
+  //                 if (newValue != null) {
+  //                   setState(() {
+  //                     selectedItemName = newValue;
+  //                   });
+  //                 }
+  //               },
+  //             ),
+  //             // Display the blank field if 'Others' is selected
+  //             if (selectedItemName == 'Others')
+  //               TextField(
+  //                 decoration: const InputDecoration(labelText: 'Item Name'),
+  //                 onChanged: (value) {
+  //                   selectedItemName = value;
+  //                 },
+  //               ),
+  //             TextField(
+  //               decoration: const InputDecoration(labelText: 'Item Points'),
+  //               keyboardType: TextInputType.number,
+  //               onChanged: (value) {
+  //                 itemPoints = int.tryParse(value) ?? 0;
+  //               },
+  //             ),
+  //           ],
+  //         ),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text('Cancel'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () async {
+  //               if(selectedItemName == 'Others'){
+  //                 await _addNewItemToFirestore(selectedItemName);
+  //               }
+  //               // Update currentItems after adding a new item
+  //               try {
+  //                 QuerySnapshot updatedItemsSnapshot = await FirebaseFirestore.instance
+  //                     .collection('items')
+  //                     .get();
+  //                 currentItems = ['Others']
+  //                   ..addAll(updatedItemsSnapshot.docs.map((doc) => doc['name']));
+  //               } catch (e) {
+  //                 print('Error fetching updated items: $e');
+  //               }
+  //               _addItemToFirestore(
+  //                 selectedItemName,
+  //                 itemPoints,
+  //                 widget.businessId,
+  //               );
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text('Add'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
