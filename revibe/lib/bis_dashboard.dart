@@ -550,6 +550,10 @@ class _ItemContentState extends State<ItemContent> {
                   onPressed: () {
                     print('Selected Item Name: $selectedItemName');
                     print('Item Points: $itemPoints');
+
+                    if (dropdownvalue == "Others") {
+                      _addItemCategoryToFirestore(selectedItemName);    
+                    }
                     _addItemToFirestore(selectedItemName, itemPoints, widget.businessId);
                     Navigator.of(context).pop();
                   },
@@ -619,6 +623,7 @@ class _ItemContentState extends State<ItemContent> {
       print('Error getting document: $error');
     });
   }
+
 
 }
 
@@ -844,17 +849,16 @@ class ProfileContent extends StatelessWidget {
 
 
 
-// Function to check if the 'items' collection exists
-Future<bool> _checkItemsCollectionExists() async {
-  try {
-    QuerySnapshot itemsSnapshot = await FirebaseFirestore.instance
-        .collection('items') // Assuming 'items' is the collection name
-        .limit(1)
-        .get();
 
-    return itemsSnapshot.docs.isNotEmpty;
+// Function to add item category to Firestore
+Future<void> _addItemCategoryToFirestore(String itemName) async {
+  try {
+    await FirebaseFirestore.instance.collection('item_category').add({
+      'name': itemName
+    });
+    print('New item category to Firestore');
   } catch (e) {
-    return false;
+    print('Error adding item category to Firestore: $e');
   }
 }
 
