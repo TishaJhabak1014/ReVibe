@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:revibe/bis_change.dart';
 import 'main.dart';
 
 class BisDashboard extends StatefulWidget {
@@ -777,7 +778,7 @@ class ProfileContent extends StatelessWidget {
           emailAddressController.text = email;
           String abn = data['abn'];
           String userName = data['firstName'];
-          abnController.text = email;
+          abnController.text = abn;
           return Padding(
             padding: EdgeInsets.all(16.0),
             child: Column(
@@ -804,18 +805,33 @@ class ProfileContent extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 20),
-                  TextField(
-                    controller: emailAddressController,
-                    readOnly: true,
-                    decoration: InputDecoration(labelText: 'Email Address'),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: abnController,
-                    readOnly: true,
-                    decoration: InputDecoration(labelText: 'ABN'),
-                  ),
-                  SizedBox(height: 16),
+                TextField(
+                  controller: emailAddressController,
+                  readOnly: true,
+                  decoration: InputDecoration(labelText: 'Email Address'),
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: abnController,
+                  readOnly: true,
+                  decoration: InputDecoration(labelText: 'ABN'),
+                ),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(context, 
+                    MaterialPageRoute(builder: (context) => const MyApp()));
+                  },
+                  child: const Text('Logout'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    print(businessId);
+                    Navigator.pushReplacement(context, 
+                    MaterialPageRoute(builder: (context) => BisChange(businessId: businessId)));
+                  },
+                  child: const Text('Change Profile Information'),
+                ),
               ],
             ),
           );

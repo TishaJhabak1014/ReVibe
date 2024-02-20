@@ -153,10 +153,10 @@ class _UserChangeState extends State<UserChange> {
                           print('test: $confirmPassword $password');
 
                           // Validate the input
-                          if (firstName.isEmpty || emailAddress.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+                          if (firstName.isEmpty || emailAddress.isEmpty) {
                             // Display an error message
                             setState(() {
-                              errorMessage = 'All fields are required';
+                              errorMessage = 'Name and email is required';
                             });
                             return;
                           }
@@ -176,9 +176,15 @@ class _UserChangeState extends State<UserChange> {
                             });
                             return;
                           }
-
+                           String hashedPassword ="helllo";
                           // Hash the password
-                          String hashedPassword = widget.password;
+                          if (confirmPassword.isEmpty && password.isEmpty){
+                            hashedPassword = widget.password;
+                          }
+                          else{
+                            hashedPassword = hashPassword(password);
+                          }
+
                           // Perform further actions, for example, send data to Firebase
                           await _submitToFirebase(context, firstName, emailAddress, hashedPassword);
 
