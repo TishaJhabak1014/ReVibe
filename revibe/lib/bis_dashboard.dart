@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:revibe/bis_change.dart';
 import 'main.dart';
 
 class BisDashboard extends StatefulWidget {
@@ -147,7 +148,7 @@ Widget _buildPage(int index, String businessID) {
     case 3:
       return CollaboratorContent(); 
     case 4:
-      return ProfileContent(businessId: businessID,); 
+      return ProfileContent(businessID);  
     default:
       return Container();
   }
@@ -726,7 +727,7 @@ class CollaboratorContent extends StatelessWidget {
 
 
 
-class ProfileContent extends StatefulWidget {
+/*class ProfileContent extends StatefulWidget {
   final String businessId;
   
   const ProfileContent ({super.key, required this.businessId});
@@ -753,10 +754,97 @@ class _ProfileContentState extends State<ProfileContent> {
       ),
     );
   }
+}*/
+
+
+class ProfileContent extends StatelessWidget {
+  final String businessId;
+  String email= "hello";
+    TextEditingController emailAddressController = TextEditingController();
+    TextEditingController abnController = TextEditingController();
+
+
+
+  ProfileContent(this.businessId);
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance.collection('businesses').doc(businessId).get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Show loading indicator while waiting for data
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Text('Document does not exist.');
+        } else {
+          Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+          String email = data['email'];
+          emailAddressController.text = email;
+          String abn = data['abn'];
+          String userName = data['firstName'];
+          abnController.text = abn;
+          return Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                ),
+                SizedBox(height: 20),
+
+                Text(
+                  userName,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Business',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: emailAddressController,
+                  readOnly: true,
+                  decoration: InputDecoration(labelText: 'Email Address'),
+                ),
+                SizedBox(height: 16),
+                TextField(
+                  controller: abnController,
+                  readOnly: true,
+                  decoration: InputDecoration(labelText: 'ABN'),
+                ),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(context, 
+                    MaterialPageRoute(builder: (context) => const MyApp()));
+                  },
+                  child: const Text('Logout'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    print(businessId);
+                    Navigator.pushReplacement(context, 
+                    MaterialPageRoute(builder: (context) => BisChange(businessId: businessId)));
+                  },
+                  child: const Text('Change Profile Information'),
+                ),
+              ],
+            ),
+          );
+        }
+      }
+    );
+  }
 }
-
-
-
 
 
 

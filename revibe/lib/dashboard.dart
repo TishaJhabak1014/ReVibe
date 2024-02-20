@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:revibe/main.dart';
+import 'package:revibe/user_change.dart';
 
 class DashboardPage extends StatefulWidget {
   final String userName;
@@ -336,7 +337,7 @@ class _ProfileContentState extends State<ProfileContent> {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData || !snapshot.data!.exists) {
-          return Text('Document does not exist.');
+          return Text('Document does not exist.ccr');
         } else {
           Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
           String email = data['email'];
@@ -385,6 +386,13 @@ class _ProfileContentState extends State<ProfileContent> {
                       MaterialPageRoute(builder: (context) => const MyApp()));
                     },
                     child: const Text('Logout'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(context, 
+                      MaterialPageRoute(builder: (context) => UserChange(userId: widget.userID)));
+                    },
+                    child: const Text('Change Profile Information'),
                   ),
                 ],
               ),
