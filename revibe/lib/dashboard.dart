@@ -210,7 +210,7 @@ Widget _buildPage(int index, String userName, String userID) {
     case 1:
       return RecycleContent(userName: userName, userID: userID); 
     case 2:
-      return Container(); 
+      return TransactionContent(userID: userID, userName: userName); 
     case 3:
       return ProfileContent(userName: userName, userID: userID); 
     default:
@@ -303,36 +303,9 @@ class TransactionContent extends StatefulWidget {
 }
 
 
-// source https://github.com/vijayinyoutube/flutter_payment_app/blob/master/lib/payment_config.dart
 class _TransactionContentState extends State<TransactionContent> {
-  String os = Platform.operatingSystem;
 
-  var applePayButton = ApplePayButton(
-    paymentConfiguration: PaymentConfiguration.fromJsonString(defaultApplePay),
-
-    paymentItems: const [
-      PaymentItem(
-        label: 'Item A',
-        amount: '0.01',
-        status: PaymentItemStatus.final_price,
-      ),
-
-      PaymentItem(
-        label: 'Item B',
-        amount: '0.01',
-        status: PaymentItemStatus.final_price,
-      ),
-    ],
-    style: ApplePayButtonStyle.black,
-    width: double.infinity,
-    height: 50,
-    type: ApplePayButtonType.buy,
-    onPaymentResult: (result) => debugPrint('Payment Result $result'),
-    loadingIndicator: const Center(child: CircularProgressIndicator(),),
-  );
-
-
-  var googlePayButton = GooglePayButton(
+   var googlePayButton = GooglePayButton(
     paymentConfiguration: PaymentConfiguration.fromJsonString(defaultGooglePay),
 
      paymentItems: const [
@@ -355,22 +328,23 @@ class _TransactionContentState extends State<TransactionContent> {
     loadingIndicator: const Center(child: CircularProgressIndicator(),),
   );
   
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: EdgeInsets.all(10),
         child: Center(
-          child: Platform.isIOS ? applePayButton : googlePayButton,
+          child: googlePayButton
         ),
       )
     );
   }
-
-  
-  
- 
 }
+
 
 
 

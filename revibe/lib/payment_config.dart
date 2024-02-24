@@ -1,41 +1,3 @@
-// source https://github.com/vijayinyoutube/flutter_payment_app/blob/master/lib/payment_config.dart
-
-const String defaultApplePay = '''{
-  "provider": "apple_pay",
-  "data": {
-    "merchantIdentifier": "example",
-    "displayName": "Example Name",
-    "merchantCapabilities": ["3DS", "debit", "credit"],
-    "supportedNetworks": ["amex", "visa", "discover", "masterCard"],
-    "countryCode": "US",
-    "currencyCode": "USD",
-    "requiredBillingContactFields": ["emailAddress", "name", "phoneNumber", "postalAddress"],
-    "requiredShippingContactFields": [],
-    "shippingMethods": [
-      {
-        "amount": "0.00",
-        "detail": "Available within an hour",
-        "identifier": "in_store_pickup",
-        "label": "In-Store Pickup"
-      },
-      {
-        "amount": "4.99",
-        "detail": "5-8 Business Days",
-        "identifier": "flat_rate_shipping_id_2",
-        "label": "UPS Ground"
-      },
-      {
-        "amount": "29.99",
-        "detail": "1-3 Business Days",
-        "identifier": "flat_rate_shipping_id_1",
-        "label": "FedEx Priority Mail"
-      }
-    ]
-  }
-}''';
-
-/// Sample configuration for Google Pay. Contains the same content as the file
-/// under `assets/default_payment_profile_google_pay.json`.
 const String defaultGooglePay = '''{
   "provider": "google_pay",
   "data": {
@@ -68,8 +30,8 @@ const String defaultGooglePay = '''{
       "merchantName": "Example Merchant Name"
     },
     "transactionInfo": {
-      "countryCode": "US",
-      "currencyCode": "USD"
+      "countryCode": "AU",
+      "currencyCode": "AUD"
     }
   }
 }''';
@@ -113,7 +75,7 @@ const String basicGooglePayLoadPaymentData = '''{
   "transactionInfo": {
     "totalPriceStatus": "FINAL",
     "totalPrice": "12.34",
-    "currencyCode": "USD"
+    "currencyCode": "AUD"
   }
 }''';
 
@@ -153,6 +115,6 @@ const String invalidGooglePayLoadPaymentData = '''{
   "transactionInfo": {
     "totalPriceStatus": "FINAL",
     "totalPrice": "12.34",
-    "currencyCode": "USD"
+    "currencyCode": "AUD"
   }
 }''';
