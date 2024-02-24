@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:revibe/main.dart';
+import 'package:revibe/payment_config.dart';
 import 'package:revibe/user_change.dart';
+import 'dart:io';
+import 'package:pay/pay.dart';
+
+
 
 class DashboardPage extends StatefulWidget {
   final String userName;
@@ -168,7 +173,7 @@ class _NavigationState extends State<Navigation> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.stacked_bar_chart),
-            label: 'Stats',
+            label: 'Transaction',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
@@ -205,7 +210,7 @@ Widget _buildPage(int index, String userName, String userID) {
     case 1:
       return RecycleContent(userName: userName, userID: userID); 
     case 2:
-      return StatsContent(); 
+      return TransactionContent(userID: userID, userName: userName); 
     case 3:
       return ProfileContent(userName: userName, userID: userID); 
     default:
@@ -285,32 +290,69 @@ class RecycleContent extends StatelessWidget {
   }
 }
 
-class StatsContent extends StatelessWidget {
+
+
+class TransactionContent extends StatefulWidget {
+  final String userID;
+  final String userName;
+  
+  const TransactionContent({Key? key, required this.userID, required this.userName}) : super(key: key);
+
+  @override
+  _TransactionContentState createState() => _TransactionContentState();
+}
+
+
+class _TransactionContentState extends State<TransactionContent> {
+
+   var googlePayButton = GooglePayButton(
+    paymentConfiguration: PaymentConfiguration.fromJsonString(defaultGooglePay),
+
+     paymentItems: const [
+      PaymentItem(
+        label: 'Item A',
+        amount: '0.01',
+        status: PaymentItemStatus.final_price,
+      ),
+
+      PaymentItem(
+        label: 'Item B',
+        amount: '0.01',
+        status: PaymentItemStatus.final_price,
+      ),
+    ],
+    width: double.infinity,
+    height: 50,
+    type: GooglePayButtonType.pay,
+    onPaymentResult: (result) => debugPrint('Payment Result $result'),
+    loadingIndicator: const Center(child: CircularProgressIndicator(),),
+  );
+  
+
+
+
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10.0),
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-        
-
-          SizedBox(height: 1.0), 
-
-          // Text widget
-          Text(
-            'Your Text Here',
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.all(10),
+        child: Center(
+          child: googlePayButton
+        ),
+      )
     );
   }
 }
+
+
+
+
+
+
+
+
+
 
 class ProfileContent extends StatefulWidget {
   final String userID;
