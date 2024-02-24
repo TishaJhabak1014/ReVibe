@@ -23,6 +23,57 @@ class CheckoutMiddlewarePage extends StatefulWidget {
 class _CheckoutMiddlewarePageState extends State<CheckoutMiddlewarePage> {
   double amount = 0.0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String itemName = '';  // Add a variable to store the item name
+  String bisName = '';  // Add a variable to store the item name
+  String userName = '';  // Add a variable to store the item name
+
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    fetchItemName();  // Fetch the item name when the widget initializes
+  }
+
+  void fetchItemName() {
+    // Fetch item details
+    FirebaseFirestore.instance.collection('item_category').doc(widget.itemId).get().then((itemDoc) {
+      if (itemDoc.exists) {
+        setState(() {
+          itemName = itemDoc.data()?['name'] ?? 'Unknown Item';
+        });
+      } else {
+        print('Item document not found');
+      }
+    }).catchError((itemError) {
+      print('Error fetching item document: $itemError');
+    });
+
+    FirebaseFirestore.instance.collection('businesses').doc(widget.businessId).get().then((itemDoc) {
+      if (itemDoc.exists) {
+        setState(() {
+          bisName = itemDoc.data()?['firstName'] ?? 'Unknown Business';
+        });
+      } else {
+        print('Businesses document not found');
+      }
+    }).catchError((itemError) {
+      print('Error fetching businesses document: $itemError');
+    });
+
+    FirebaseFirestore.instance.collection('users').doc(widget.userId).get().then((itemDoc) {
+      if (itemDoc.exists) {
+        setState(() {
+          userName = itemDoc.data()?['firstname'] ?? 'Unknown User';
+        });
+      } else {
+        print('User document not found');
+      }
+    }).catchError((itemError) {
+      print('Error fetching user document: $itemError');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +93,10 @@ class _CheckoutMiddlewarePageState extends State<CheckoutMiddlewarePage> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
-              Text('Item ID: ${widget.itemId}'),
-              Text('User ID: ${widget.userId}'),
-              Text('Business ID: ${widget.businessId}'),
-              Text('Timestamp: ${widget.timestamp}'),
+              Text('Item name: $itemName'),
+              Text('User name: ${userName}'),
+              Text('Business name: ${bisName}'),
+              Text('Date & Time: ${widget.timestamp}'),
               Text('Points: ${widget.points}'),
               SizedBox(height: 20),
               TextField(
