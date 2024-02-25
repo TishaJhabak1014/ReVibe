@@ -3,6 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:revibe/main.dart';
 import 'package:intl/intl.dart';
+import 'package:revibe/payment_config.dart';
+import 'package:revibe/user_change.dart';
+import 'dart:io';
+import 'package:pay/pay.dart';
+
 
 
 class DashboardPage extends StatefulWidget {
@@ -171,7 +176,7 @@ class _NavigationState extends State<Navigation> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.stacked_bar_chart),
-            label: 'Stats',
+            label: 'Transaction',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
@@ -208,7 +213,7 @@ Widget _buildPage(int index, String userName, String userID) {
     case 1:
       return RecycleContent(userName: userName, userID: userID); 
     case 2:
-      return StatsContent(userId: userID,); 
+      return TransactionContent(userID: userID, userName: userName); 
     case 3:
       return ProfileContent(userName: userName, userID: userID); 
     default:
@@ -288,73 +293,52 @@ class RecycleContent extends StatelessWidget {
   }
 }
 
-// class StatsContent extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       padding: const EdgeInsets.all(10.0),
-//       child: const Column(
-//         crossAxisAlignment: CrossAxisAlignment.stretch,
-//         children: [
-        
+class TransactionContent extends StatefulWidget {
+  final String userID;
+  final String userName;
+  
+  const TransactionContent({Key? key, required this.userID, required this.userName}) : super(key: key);
 
-//           SizedBox(height: 1.0), 
+  @override
+  _TransactionContentState createState() => _TransactionContentState();
+}
 
-//           // Text widget
-//           Text(
-//             'Your Text Here',
-//             style: TextStyle(
-//               fontSize: 18.0,
-//               fontWeight: FontWeight.bold,
-//               color: Colors.black,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 
-class StatsContent extends StatelessWidget {
-  final String userId;
+class _TransactionContentState extends State<TransactionContent> {
 
-  StatsContent({required this.userId});
+   var googlePayButton = GooglePayButton(
+    paymentConfiguration: PaymentConfiguration.fromJsonString(defaultGooglePay),
+
+     paymentItems: const [
+      PaymentItem(
+        label: 'Item A',
+        amount: '0.01',
+        status: PaymentItemStatus.final_price,
+      ),
+
+      PaymentItem(
+        label: 'Item B',
+        amount: '0.01',
+        status: PaymentItemStatus.final_price,
+      ),
+    ],
+    width: double.infinity,
+    height: 50,
+    type: GooglePayButtonType.pay,
+    onPaymentResult: (result) => debugPrint('Payment Result $result'),
+    loadingIndicator: const Center(child: CircularProgressIndicator(),),
+  );
+  
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10.0),
-      child: FutureBuilder<List<DataRow>>(
-        future: _buildRows(),
-        builder: (context, AsyncSnapshot<List<DataRow>> rowsSnapshot) {
-          if (rowsSnapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          if (rowsSnapshot.hasError) {
-            return Center(child: Text('Error: ${rowsSnapshot.error}'));
-          }
-
-          if (!rowsSnapshot.hasData || rowsSnapshot.data!.isEmpty) {
-            return Center(child: Text('No transactions available for the user.'));
-          }
-
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: [
-                DataColumn(label: Text('Store')),
-                DataColumn(label: Text('Item ')),
-                DataColumn(label: Text('Timestamp')),
-                DataColumn(label: Text('Points')),
-                DataColumn(label: Text('Amount')),
-                // Add other columns as needed
-              ],
-              rows: rowsSnapshot.data!,
-            ),
-          );
-        },
-      ),
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.all(10),
+        child: Center(
+          child: googlePayButton
+        ),
+      )
     );
   }
 
@@ -439,7 +423,7 @@ class _ProfileContentState extends State<ProfileContent> {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData || !snapshot.data!.exists) {
-          return Text('Document does not exist.');
+          return Text('Document does not exist.ccr');
         } else {
           Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
           String email = data['email'];
@@ -488,6 +472,13 @@ class _ProfileContentState extends State<ProfileContent> {
                       MaterialPageRoute(builder: (context) => const MyApp()));
                     },
                     child: const Text('Logout'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(context, 
+                      MaterialPageRoute(builder: (context) => UserChange(userId: widget.userID)));
+                    },
+                    child: const Text('Change Profile Information'),
                   ),
                 ],
               ),
