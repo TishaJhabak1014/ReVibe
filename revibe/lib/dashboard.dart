@@ -7,6 +7,7 @@ import 'package:revibe/payment_config.dart';
 import 'package:revibe/user_change.dart';
 import 'dart:io';
 import 'package:pay/pay.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 
 
@@ -328,24 +329,62 @@ class _TransactionContentState extends State<TransactionContent> {
     onPaymentResult: (result) => debugPrint('Payment Result $result'),
     loadingIndicator: const Center(child: CircularProgressIndicator(),),
   );
-  
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(10),
-        child: Center(
-          child: googlePayButton
+  return Container(
+    padding: const EdgeInsets.all(10.0),
+    child: Column(
+      children: [
+        
+
+        SizedBox(height: 10), // Optional spacing between button and DataTable
+        Expanded(
+          child: FutureBuilder<List<DataRow>>(
+            future: _buildRows(),
+            builder: (context, AsyncSnapshot<List<DataRow>> rowsSnapshot) {
+              if (rowsSnapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              if (rowsSnapshot.hasError) {
+                return Center(child: Text('Error: ${rowsSnapshot.error}'));
+              }
+
+              if (!rowsSnapshot.hasData || rowsSnapshot.data!.isEmpty) {
+                return Center(child: Text('No transactions available for the user.'));
+              }
+
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: [
+                    DataColumn(label: Text('Store')),
+                    DataColumn(label: Text('Item')),
+                    DataColumn(label: Text('Timestamp')),
+                    DataColumn(label: Text('Points')),
+                    DataColumn(label: Text('Amount')),
+                    // Add other columns as needed
+                  ],
+                  rows: rowsSnapshot.data!,
+                ),
+              );
+            },
+          ),
         ),
-      )
-    );
-  }
+
+
+        kIsWeb ? Container(): const SizedBox(height: 50), googlePayButton,
+      ],
+    ),
+  );
+}
 
   Future<List<DataRow>> _buildRows() async {
     QuerySnapshot transactionSnapshot = await FirebaseFirestore.instance
         .collection('transactions')
-        .where('userId', isEqualTo: userId)
+        .where('userId', isEqualTo: widget.userID)
         .get();
 
     List<DataRow> rows = [];

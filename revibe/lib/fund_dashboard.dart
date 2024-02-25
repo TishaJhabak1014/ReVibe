@@ -5,8 +5,9 @@ import 'package:revibe/main.dart';
 
 class FundDashboard extends StatefulWidget {
   final String userID;
+  final String userName;
 
-  const FundDashboard({required this.userID});
+  const FundDashboard({required this.userID, required this.userName});
 
   @override
   _FundDashboardState createState() => _FundDashboardState();
@@ -16,7 +17,7 @@ class _FundDashboardState extends State<FundDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: NavigationBar(userID: widget.userID),
+      bottomNavigationBar: NavigationBar(userID: widget.userID, userName: widget.userName,),
     );
   }
 }
@@ -75,20 +76,22 @@ class ItemList extends StatelessWidget {
 // Navigation Bar Layout
 class NavigationBar extends StatelessWidget {
   final String userID;
+  final String userName;
 
-  const NavigationBar({required this.userID});
+  const NavigationBar({required this.userID, required this.userName});
 
   @override
   Widget build(BuildContext context) {
-    return Navigation(userID: userID);
+    return Navigation(userID: userID, userName: userName,);
   }
 }
 
 // Navigation State
 class Navigation extends StatefulWidget {
   final String userID;
+  final String userName;
 
-  Navigation({Key? key, required this.userID}) : super(key: key);
+  Navigation({Key? key, required this.userID, required this.userName}) : super(key: key);
 
   @override
   State<Navigation> createState() => _NavigationState();
@@ -136,7 +139,7 @@ class _NavigationState extends State<Navigation> {
 
       // Navigation Content
       body: Center(
-        child: _buildPage(currentPageIndex, widget.userID),
+        child: _buildPage(currentPageIndex, widget.userID, widget.userName),
       ),
 
     );
@@ -145,7 +148,7 @@ class _NavigationState extends State<Navigation> {
 
 
 // Function to build content based on the selected index
-Widget _buildPage(int index, String userID) {
+Widget _buildPage(int index, String userID, String userName) {
   switch (index) {
     case 0:
       return HomeContent(userID: userID);
@@ -154,7 +157,7 @@ Widget _buildPage(int index, String userID) {
     case 2:
       return StatsContent(); 
     case 3:
-      return ProfileContent(userID: userID,); 
+      return ProfileContent(userID: userID, userName: userName,); 
     default:
       return Container();
   }
@@ -573,29 +576,93 @@ class StatsContent extends StatelessWidget {
 
 class ProfileContent extends StatefulWidget {
   final String userID;
+  final String userName;
   
-  const ProfileContent ({super.key, required this.userID});
+  const ProfileContent ({super.key, required this.userID, required this.userName});
 
   @override
   _ProfileContentState createState() => _ProfileContentState();
 }
 
 class _ProfileContentState extends State<ProfileContent> {
+  String email= "hello";
+  TextEditingController emailAddressController = TextEditingController();
+
+ 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushReplacement(context, 
-            MaterialPageRoute(builder: (context) => const MyApp()));
-          },
-          child: const Text('Logout'),
-        ),
-      ),
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance.collection('fundraisers').doc(widget.userID).get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Show loading indicator while waiting for data
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Text('Document does not exist.ccr');
+        } else {
+          Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
+          String email = data['email'];
+          emailAddressController.text = email;
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Profile'),
+            ),
+            body: Padding(
+            padding: EdgeInsets.all(16.0),
+              child: Column(
+
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                  ),
+                  SizedBox(height: 20),
+
+                  Text(
+                    widget.userName,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'fundraiser',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                    TextField(
+                      controller: emailAddressController,
+                      readOnly: true,
+                      decoration: InputDecoration(labelText: 'Email Address'),
+                    ),
+                    SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(context, 
+                      MaterialPageRoute(builder: (context) => const MyApp()));
+                    },
+                    child: const Text('Logout'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Navigator.pushReplacement(context, 
+                      // MaterialPageRoute(builder: (context) => UserChange(userId: widget.userID)));
+                    },
+                    child: const Text('Change Profile Information'),
+                  ),
+                ],
+              ),
+              
+            )
+          );
+        }
+      }
     );
   }
 }

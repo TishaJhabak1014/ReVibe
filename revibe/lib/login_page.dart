@@ -221,10 +221,15 @@ class _LoginPageState extends State<LoginPage>{
         );
       }else if(userType == 3){
         String userID = querySnapshot.docs.first.id;
+        String userName = querySnapshot.docs.first['firstname'];
+        print(userName);
+        print(querySnapshot.docs.first.data());
+
+
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => FundDashboard(userID: userID),
+            builder: (context) => FundDashboard(userID: userID, userName: userName,),
           ),
         );
       }

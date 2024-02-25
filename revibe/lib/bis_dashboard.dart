@@ -845,6 +845,7 @@ class TransactionContent extends StatelessWidget {
   }
 }
 
+
 class TransactionDataTable extends StatelessWidget {
   final String businessId;
 
@@ -881,20 +882,21 @@ class TransactionDataTable extends StatelessWidget {
               return Center(child: Text('Error: ${rowsSnapshot.error}'));
             }
 
-            return SingleChildScrollView(
+            return Center(
+            child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
-                columns: [
+                columns: const [
                   DataColumn(label: Text('User Name')),
                   DataColumn(label: Text('Item Name')),
                   DataColumn(label: Text('Timestamp')),
                   DataColumn(label: Text('Points')),
                   DataColumn(label: Text('Amount')),
-                  // Add other columns as needed
                 ],
                 rows: rowsSnapshot.data!,
               ),
-            );
+            ),
+          );
           },
         );
       },
@@ -959,7 +961,6 @@ class TransactionDataTable extends StatelessWidget {
     return 'Item Not Found';
   }
 }
-
 
 
 
