@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:revibe/bis_change.dart';
 import 'main.dart';
+import 'CheckoutMiddlewarePage.dart';
+import 'package:intl/intl.dart'; 
 
 class BisDashboard extends StatefulWidget {
   final String businessId;
@@ -144,7 +146,7 @@ Widget _buildPage(int index, String businessID) {
     case 1:
       return ItemContent(businessId: businessID,); 
     case 2:
-      return TransactionContent(); 
+      return TransactionContent(businessId: businessID,); 
     case 3:
       return CollaboratorContent(); 
     case 4:
@@ -163,7 +165,9 @@ Widget _buildPage(int index, String businessID) {
 class HomeContent extends StatefulWidget {
   final String businessId;
   
-  const HomeContent ({super.key, required this.businessId});
+  // const HomeContent ({super.key, required this.businessId}) ;
+  const HomeContent({Key? key, required this.businessId}) : super(key: key);
+
 
   @override
   _HomeContentState createState() => _HomeContentState();
@@ -193,7 +197,7 @@ class _HomeContentState extends State<HomeContent> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => QRScannerScreen()),
+              MaterialPageRoute(builder: (context) => QRScannerScreen(businessId: widget.businessId,)),
             );
           },
           child: const Text('Scan QR code'),
@@ -205,6 +209,9 @@ class _HomeContentState extends State<HomeContent> {
 
 
 class QRScannerScreen extends StatefulWidget {
+  final String businessId;
+  
+  const QRScannerScreen ({super.key, required this.businessId});
   @override
   _QRScannerScreenState createState() => _QRScannerScreenState();
 }
@@ -264,25 +271,31 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DisplayScannedDataScreen(scannedData: scannedData),
+        builder: (context) => DisplayScannedDataScreen(scannedData: scannedData, businessId: widget.businessId),
       ),
     ).then((_) {
       isDisplayScreenShown = false;
     });
+
+  
+
   }
 }
-
 class DisplayScannedDataScreen extends StatelessWidget {
-  final String scannedData;
+  // final String scannedData;
 
-  const DisplayScannedDataScreen({Key? key, required this.scannedData})
+  // const DisplayScannedDataScreen({Key? key, required this.scannedData})
+  //     : super(key: key);
+
+  final String scannedData;
+  final String businessId;
+
+  const DisplayScannedDataScreen({Key? key, required this.scannedData, required this.businessId})
       : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
-    // Parse the scanned data here
-    final parsedData = _parseScannedData(scannedData);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Scanned QR Code'),
@@ -296,9 +309,53 @@ class DisplayScannedDataScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            Text(
-              parsedData,
-              style: const TextStyle(fontSize: 16),
+            FutureBuilder<Map<String, dynamic>>(
+              future: _parseScannedData(scannedData, businessId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  final data = snapshot.data ?? {};
+
+                  return Column(
+                    children: [
+                      Text(
+                        'Firstname: ${data['firstname'] ?? 'Unknown'}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        'Points: ${data['points'] ?? 0}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      Text(
+                        'Item Name: ${data['name'] ?? 'Unknown'}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CheckoutMiddlewarePage(
+                                itemId: data['itemId'],
+                                userId: data['userId'],
+                                businessId: data['businessId'],
+                                timestamp: data['timestamp'],
+                                points: data['points'],
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text('Proceed to Checkout'),
+                      ),
+                    ],
+                  );
+                }
+              },
             ),
           ],
         ),
@@ -306,13 +363,69 @@ class DisplayScannedDataScreen extends StatelessWidget {
     );
   }
 
-  String _parseScannedData(String scannedData) {
+
+  static Future<Map<String, dynamic>> _parseScannedData(String scannedData, String businessId) async {
   final parts = scannedData.split('|');
 
   if (parts.length >= 2) {
-    return 'UserID: ${parts[0]}\nItemID: ${parts[1]}';
+    try {
+      // Query the 'users' collection to get the firstname
+      var userDoc = await FirebaseFirestore.instance.collection('users').doc(parts[0]).get();
+
+      if (!userDoc.exists) {
+        return {'error': 'User not found'};
+      }
+
+      print("here"+ businessId + " "+parts[1] + " "+parts[0]+ " "+scannedData  );
+      // Query the 'scannable_items_org' collection to get points and name
+      var itemDoc = await FirebaseFirestore.instance
+        .collection('scannable_items_org')
+        .where('businessId', isEqualTo: businessId)
+        .where('itemId', isEqualTo: parts[1])
+        .get();
+
+
+      // if (itemDoc.exists) {
+      //   // Both user and item found, extract data
+      //   return {
+      //     'firstname': userDoc.data()?['firstname'] ?? 'Unknown',
+      //     'points': itemDoc.data()?['points'] ?? 0,
+      //     'name': itemDoc.data()?['name'] ?? 'Unknown',
+      //     'itemId': parts[1],
+      //     'userId': parts[0],
+      //     'businessId': businessId,
+      //     'timestamp': DateTime.now(),
+      //     /**
+      //      * .collection('scannable_items_org')
+      //       .where('businessId', isEqualTo: widget.businessId)
+      //       .snapshots(),
+      //      */
+      //   };
+      // } else {
+      //   return {'error': 'Item not found'};
+      // }
+
+      if (itemDoc.docs.isNotEmpty) {
+        // Both user and item found, extract data
+        var itemData = itemDoc.docs.first.data();
+        return {
+          'firstname': userDoc.data()?['firstname'] ?? 'Unknown',
+          'points': itemData['points'] ?? 0,
+          'name': itemData['name'] ?? 'Unknown',
+          'itemId': parts[1],
+          'userId': parts[0],
+          'businessId': businessId,
+          'timestamp': DateTime.now(),
+        };
+      } else {
+        return {'error': 'Item not found'};
+      }
+
+    } catch (e) {
+      return {'error': 'Error getting documents: $e'};
+    }
   } else {
-    return 'Error: Unable to parse scanned data.';
+    return {'error': 'Error: Unable to parse scanned data.'};
   }
 }
 
@@ -320,20 +433,16 @@ class DisplayScannedDataScreen extends StatelessWidget {
 
 
 
+// String _parseScannedData(String scannedData) {
+//   final parts = scannedData.split('|');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+//   if (parts.length >= 2) {
+//     return 'UserID: ${parts[0]}\nItemID: ${parts[1]}';
+//   } else {
+//     return 'Error: Unable to parse scanned data.';
+//   }
+// }
+// **********
 
 class ItemContent extends StatefulWidget {
   final String businessId;
@@ -547,14 +656,26 @@ class _ItemContentState extends State<ItemContent> {
                   child: const Text('Cancel'),
                 ),
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async{
                     print('Selected Item Name: $selectedItemName');
                     print('Item Points: $itemPoints');
+                    String itemId;
 
                     if (dropdownvalue == "Others") {
-                      _addItemCategoryToFirestore(selectedItemName);    
+                     itemId =  await _addItemCategoryToFirestore(selectedItemName) ?? '';   
+                     _addItemToFirestore(selectedItemName, itemPoints, widget.businessId, itemId); 
+                    }else{
+                      itemId = await _findItemIdByCategoryName(selectedItemName) ?? '';
                     }
-                    _addItemToFirestore(selectedItemName, itemPoints, widget.businessId);
+
+                    _addItemToFirestore(selectedItemName, itemPoints, widget.businessId, itemId);
+
+                    // if (itemId != null) {
+                    //   _addItemToFirestore(selectedItemName, itemPoints, widget.businessId, itemId);
+                    // } else {
+                    //   print('Error: Item not found');
+                    // }
+
                     Navigator.of(context).pop();
                   },
                   child: const Text('Add'),
@@ -709,11 +830,138 @@ class _EditItemPageState extends State<EditItemPage> {
 }
 
 class TransactionContent extends StatelessWidget {
+  final String businessId;
+
+  TransactionContent({required this.businessId});
+
   @override
   Widget build(BuildContext context) {
-    return Text('Transaction Page Content');
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Transaction Page'),
+      ),
+      body: TransactionDataTable(businessId: businessId),
+    );
   }
 }
+
+class TransactionDataTable extends StatelessWidget {
+  final String businessId;
+
+  TransactionDataTable({required this.businessId});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance
+          .collection('transactions')
+          .where('businessId', isEqualTo: businessId)
+          .snapshots(),
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Center(child: Text('No transactions available.'));
+        }
+
+        return FutureBuilder<List<DataRow>>(
+          future: _buildRows(snapshot.data!.docs),
+          builder: (context, AsyncSnapshot<List<DataRow>> rowsSnapshot) {
+            if (rowsSnapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            if (rowsSnapshot.hasError) {
+              return Center(child: Text('Error: ${rowsSnapshot.error}'));
+            }
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: [
+                  DataColumn(label: Text('User Name')),
+                  DataColumn(label: Text('Item Name')),
+                  DataColumn(label: Text('Timestamp')),
+                  DataColumn(label: Text('Points')),
+                  DataColumn(label: Text('Amount')),
+                  // Add other columns as needed
+                ],
+                rows: rowsSnapshot.data!,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<List<DataRow>> _buildRows(List<QueryDocumentSnapshot> docs) async {
+    List<DataRow> rows = [];
+
+    for (QueryDocumentSnapshot doc in docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+      // Fetch associated data
+      String userId = await fetchUserName(data['userId']);
+      String itemName = await fetchItemName(data['itemId']);
+
+      // Format the timestamp
+      String formattedTimestamp =
+          DateFormat('yyyy-MM-dd HH:mm:ss').format(data['timestamp'].toDate());
+
+      rows.add(
+        DataRow(
+          cells: [
+            DataCell(Text(userId)),
+            DataCell(Text(itemName)),
+            DataCell(Text(formattedTimestamp)),
+            DataCell(Text(data['points'].toString())),
+            DataCell(Text(data['amount'].toString())),
+            // Add other fields as needed
+          ],
+        ),
+      );
+    }
+
+    return rows;
+  }
+
+  Future<String> fetchUserName(String userId) async {
+    DocumentSnapshot userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    if (userDoc.exists) {
+      return userDoc['firstname'];
+    }
+    return 'User Not Found';
+  }
+
+  Future<String> fetchBusinessName(String businessId) async {
+    DocumentSnapshot businessDoc =
+        await FirebaseFirestore.instance.collection('businesses').doc(businessId).get();
+    if (businessDoc.exists) {
+      return businessDoc['firstName'];
+    }
+    return 'Business Not Found';
+  }
+
+  Future<String> fetchItemName(String itemId) async {
+    DocumentSnapshot itemDoc =
+        await FirebaseFirestore.instance.collection('item_category').doc(itemId).get();
+    if (itemDoc.exists) {
+      return itemDoc['name'];
+    }
+    return 'Item Not Found';
+  }
+}
+
+
+
 
 class CollaboratorContent extends StatelessWidget {
   @override
@@ -851,36 +1099,62 @@ class ProfileContent extends StatelessWidget {
 
 
 // Function to add item category to Firestore
-Future<void> _addItemCategoryToFirestore(String itemName) async {
+Future<String> _addItemCategoryToFirestore(String itemName) async {
   try {
-    await FirebaseFirestore.instance.collection('item_category').add({
+    DocumentReference documentReference = await FirebaseFirestore.instance.collection('item_category').add({
       'name': itemName
     });
     print('New item category to Firestore');
+    String itemId = documentReference.id;
+    print('Item added to Firestore with ID: $itemId');
+    return itemId;
+
   } catch (e) {
     print('Error adding item category to Firestore: $e');
+    return '';
   }
 }
 
-// Function to add an item to Firestore
-Future<void> _addNewItemToFirestore(String itemName) async {
+// // Function to add an item to Firestore
+// Future<void> _addNewItemToFirestore(String itemName) async {
+//   try {
+//     await FirebaseFirestore.instance.collection('items').add({
+//       'name': itemName
+//     });
+//     print('New item added to Firestore');
+//   } catch (e) {
+//     print('Error adding item to Firestore: $e');
+//   }
+// }
+
+Future<String?> _findItemIdByCategoryName(String itemName) async {
   try {
-    await FirebaseFirestore.instance.collection('items').add({
-      'name': itemName
-    });
-    print('New item added to Firestore');
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('item_category')
+        .where('name', isEqualTo: itemName)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // Return the first document ID found
+      return querySnapshot.docs.first.id;
+    } else {
+      return null; // Item not found
+    }
   } catch (e) {
-    print('Error adding item to Firestore: $e');
+    print('Error finding item ID: $e');
+    return null;
   }
 }
 
+
 // Function to add an item to Firestore
-Future<void> _addItemToFirestore(String itemName, int itemPoints, String businessId) async {
+Future<void> _addItemToFirestore(String itemName, int itemPoints, String businessId, String itemId) async {
   try {
     await FirebaseFirestore.instance.collection('scannable_items_org').add({
       'name': itemName,
       'points': itemPoints,
       'businessId': businessId,
+      'itemId': itemId
     });
     print('Item added to Firestore');
   } catch (e) {
@@ -921,82 +1195,3 @@ Future<void> _deleteItem(String itemId) async {
 
 
 
-
-
-  //   return showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text('Add New Item'),
-  //         content: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             DropdownButton<String>(
-  //               value: selectedItemName,
-  //               items: currentItems.map((String item) {
-  //                 return DropdownMenuItem<String>(
-  //                   value: item,
-  //                   child: Text(item),
-  //                 );
-  //               }).toList(),
-  //               onChanged: (String? newValue) {
-  //                 if (newValue != null) {
-  //                   setState(() {
-  //                     selectedItemName = newValue;
-  //                   });
-  //                 }
-  //               },
-  //             ),
-  //             // Display the blank field if 'Others' is selected
-  //             if (selectedItemName == 'Others')
-  //               TextField(
-  //                 decoration: const InputDecoration(labelText: 'Item Name'),
-  //                 onChanged: (value) {
-  //                   selectedItemName = value;
-  //                 },
-  //               ),
-  //             TextField(
-  //               decoration: const InputDecoration(labelText: 'Item Points'),
-  //               keyboardType: TextInputType.number,
-  //               onChanged: (value) {
-  //                 itemPoints = int.tryParse(value) ?? 0;
-  //               },
-  //             ),
-  //           ],
-  //         ),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: const Text('Cancel'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () async {
-  //               if(selectedItemName == 'Others'){
-  //                 await _addNewItemToFirestore(selectedItemName);
-  //               }
-  //               // Update currentItems after adding a new item
-  //               try {
-  //                 QuerySnapshot updatedItemsSnapshot = await FirebaseFirestore.instance
-  //                     .collection('items')
-  //                     .get();
-  //                 currentItems = ['Others']
-  //                   ..addAll(updatedItemsSnapshot.docs.map((doc) => doc['name']));
-  //               } catch (e) {
-  //                 print('Error fetching updated items: $e');
-  //               }
-  //               _addItemToFirestore(
-  //                 selectedItemName,
-  //                 itemPoints,
-  //                 widget.businessId,
-  //               );
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: const Text('Add'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }

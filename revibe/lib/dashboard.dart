@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:revibe/main.dart';
+import 'package:intl/intl.dart';
 import 'package:revibe/payment_config.dart';
 import 'package:revibe/user_change.dart';
 import 'dart:io';
@@ -58,15 +59,17 @@ class ItemList extends StatelessWidget {
               InkWell(
                 onTap: () {
                   String documentID = item.id;
+                  String documentID2 = item['itemId'];
 
-                  // print('$userID|$item.id');
+
+                  print('$userID|$documentID2');
                   // Navigate to a new screen with QR code and message
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => QRScreen(
                         userID : userID,
-                        itemID: item.id, // here should be the document id for tehta item in te firebase 
+                        itemID: documentID2, // here should be the document id for the item in the firebase 
                         itemName: item['name'],
                         itemPoints: item['points'],
                       ),
@@ -290,8 +293,6 @@ class RecycleContent extends StatelessWidget {
   }
 }
 
-
-
 class TransactionContent extends StatefulWidget {
   final String userID;
   final String userName;
@@ -329,9 +330,6 @@ class _TransactionContentState extends State<TransactionContent> {
   );
   
 
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -343,15 +341,61 @@ class _TransactionContentState extends State<TransactionContent> {
       )
     );
   }
+
+  Future<List<DataRow>> _buildRows() async {
+    QuerySnapshot transactionSnapshot = await FirebaseFirestore.instance
+        .collection('transactions')
+        .where('userId', isEqualTo: userId)
+        .get();
+
+    List<DataRow> rows = [];
+
+    for (QueryDocumentSnapshot doc in transactionSnapshot.docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+      // Fetch associated data
+      String itemName = await fetchItemName(data['itemId']);
+      String businessName = await fetchBusinessName(data['businessId']);
+
+
+      // Format the timestamp
+      String formattedTimestamp =
+          DateFormat('yyyy-MM-dd HH:mm:ss').format(data['timestamp'].toDate());
+
+      rows.add(
+        DataRow(
+          cells: [
+            DataCell(Text(businessName)),
+            DataCell(Text(itemName)),
+            DataCell(Text(formattedTimestamp)),
+            DataCell(Text(data['points'].toString())),
+            DataCell(Text(data['amount'].toString())),
+            // Add other fields as needed
+          ],
+        ),
+      );
+    }
+
+    return rows;
+  }
+
+  Future<String> fetchBusinessName(String businessId) async {
+      DocumentSnapshot businessDoc =
+          await FirebaseFirestore.instance.collection('businesses').doc(businessId).get();
+      if (businessDoc.exists) {
+        return businessDoc['firstName'];
+      }
+      return 'Business Not Found';
+    }
+  Future<String> fetchItemName(String itemId) async {
+    DocumentSnapshot itemDoc =
+        await FirebaseFirestore.instance.collection('item_category').doc(itemId).get();
+    if (itemDoc.exists) {
+      return itemDoc['name'];
+    }
+    return 'Item Not Found';
+  }
 }
-
-
-
-
-
-
-
-
 
 
 class ProfileContent extends StatefulWidget {
