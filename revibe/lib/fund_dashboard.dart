@@ -507,7 +507,7 @@ class _EditItemPageState extends State<EditItemPage> {
                     border: OutlineInputBorder(),
                     contentPadding: EdgeInsets.fromLTRB(12, 16, 12, 16),
                   ),
-                  maxLines: null, // Allow multiple lines for content
+                  maxLines: null, 
                 ),
               ),
 
@@ -595,7 +595,7 @@ class _ProfileContentState extends State<ProfileContent> {
       future: FirebaseFirestore.instance.collection('fundraisers').doc(widget.userID).get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator while waiting for data
+          return CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData || !snapshot.data!.exists) {

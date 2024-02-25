@@ -70,7 +70,7 @@ class ItemList extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (context) => QRScreen(
                         userID : userID,
-                        itemID: documentID2, // here should be the document id for the item in the firebase 
+                        itemID: documentID2, 
                         itemName: item['name'],
                         itemPoints: item['points'],
                       ),
@@ -285,7 +285,6 @@ class RecycleContent extends StatelessWidget {
           children: [
   
             const SizedBox(height: 16),
-            // Display the list of items
             ItemList(userID: userID),
           ],
         ),
@@ -307,6 +306,7 @@ class TransactionContent extends StatefulWidget {
 
 class _TransactionContentState extends State<TransactionContent> {
 
+   // source https://github.com/vijayinyoutube/flutter_payment_app/blob/master/lib/payment_config.dart
    var googlePayButton = GooglePayButton(
     paymentConfiguration: PaymentConfiguration.fromJsonString(defaultGooglePay),
 
@@ -339,7 +339,7 @@ class _TransactionContentState extends State<TransactionContent> {
       children: [
         
 
-        SizedBox(height: 10), // Optional spacing between button and DataTable
+        SizedBox(height: 10),
         Expanded(
           child: FutureBuilder<List<DataRow>>(
             future: _buildRows(),
@@ -359,13 +359,13 @@ class _TransactionContentState extends State<TransactionContent> {
               return SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
-                  columns: [
+                  columns: const [
                     DataColumn(label: Text('Store')),
                     DataColumn(label: Text('Item')),
                     DataColumn(label: Text('Timestamp')),
                     DataColumn(label: Text('Points')),
                     DataColumn(label: Text('Amount')),
-                    // Add other columns as needed
+                 
                   ],
                   rows: rowsSnapshot.data!,
                 ),
@@ -409,7 +409,6 @@ class _TransactionContentState extends State<TransactionContent> {
             DataCell(Text(formattedTimestamp)),
             DataCell(Text(data['points'].toString())),
             DataCell(Text(data['amount'].toString())),
-            // Add other fields as needed
           ],
         ),
       );
@@ -458,7 +457,7 @@ class _ProfileContentState extends State<ProfileContent> {
       future: FirebaseFirestore.instance.collection('users').doc(widget.userID).get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator while waiting for data
+          return CircularProgressIndicator(); 
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData || !snapshot.data!.exists) {
@@ -477,34 +476,34 @@ class _ProfileContentState extends State<ProfileContent> {
 
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 50,
                   ),
                   SizedBox(height: 20),
 
                   Text(
                     widget.userName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Text(
+                  const SizedBox(height: 10),
+                  const Text(
                     'user',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                     TextField(
                       controller: emailAddressController,
                       readOnly: true,
                       decoration: InputDecoration(labelText: 'Email Address'),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pushReplacement(context, 

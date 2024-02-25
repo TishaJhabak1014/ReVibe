@@ -48,7 +48,7 @@ class _BisChangeState extends State<BisChange> {
       future: FirebaseFirestore.instance.collection('businesses').doc(widget.businessId).get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator while waiting for data
+          return CircularProgressIndicator(); 
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData || !snapshot.data!.exists) {
@@ -151,10 +151,7 @@ class _BisChangeState extends State<BisChange> {
                       },
                     ),
 
-                    //  Contact details
-                    
-                    // Replace TextField with TextFormField for the rest of the fields
-                    // ...
+                 
                     TextFormField(
                       controller: passwordController,
                       decoration: InputDecoration(labelText: 'Password'),
@@ -240,13 +237,9 @@ class _BisChangeState extends State<BisChange> {
     );
   }
 
-  // ... (submit function)
-  // Example function to submit business data to Firebase
+
   Future<void> _submitBusinessToFirebase(
       BuildContext context, String businessName, String abn, String email, String password) async {
-    // Your Firebase logic for business sign-up here
-    // Note: Ensure you have initialized Firebase in your app before using these services
-    // Example:
     final collection = FirebaseFirestore.instance.collection('businesses');
     try {
       await collection.doc(widget.businessId).set(
@@ -256,7 +249,6 @@ class _BisChangeState extends State<BisChange> {
           'abn': abn,
           'email': email,
           'password': password
-          // ... (similarly for other fields)
         },
       );
       // ignore: use_build_context_synchronously
@@ -267,7 +259,6 @@ class _BisChangeState extends State<BisChange> {
         ),
       );
     } catch (error) {
-      // Display an error message on the page
       setState(() {
         errorMessage = 'Error submitting to Firebase: $error';
       });

@@ -17,8 +17,7 @@ class QRImage extends StatelessWidget {
           child: QrImageView(
             data: controller.text,
             size: 280,
-            // You can include embeddedImageStyle Property if you 
-            //wanna embed an image from your Asset folder
+       
             embeddedImageStyle: QrEmbeddedImageStyle(
               size: const Size(
                 100,

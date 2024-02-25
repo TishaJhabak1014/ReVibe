@@ -158,9 +158,7 @@ class _FundraiserSignUpState extends State<FundraiserSignUp> {
 
   Future<void> _submitFundraiserToFirebase(
       BuildContext context, String pocName, String org, String email, String password, String cause) async {
-    // Your Firebase logic for business sign-up here
-    // Note: Ensure you have initialized Firebase in your app before using these services
-    // Example:
+ 
     final collection = FirebaseFirestore.instance.collection('fundraisers');
     try {
       await collection.doc().set(
@@ -171,7 +169,7 @@ class _FundraiserSignUpState extends State<FundraiserSignUp> {
           'email': email,
           'password': password,
           'cause': cause
-          // ... (similarly for other fields)
+       
         },
       );
       // ignore: use_build_context_synchronously
@@ -182,7 +180,6 @@ class _FundraiserSignUpState extends State<FundraiserSignUp> {
         ),
       );
     } catch (error) {
-      // Display an error message on the page
       setState(() {
         errorMessage = 'Error submitting to Firebase: $error';
       });

@@ -167,8 +167,7 @@ class _BisSignUpState extends State<BisSignUp> {
                 controller: instagramProfileController,
                 decoration: InputDecoration(labelText: 'Instagram Profile (optional)'),
               ),
-              // Replace TextField with TextFormField for the rest of the fields
-              // ...
+        
               TextFormField(
                 controller: passwordController,
                 decoration: InputDecoration(labelText: 'Password'),
@@ -254,13 +253,8 @@ class _BisSignUpState extends State<BisSignUp> {
     );
   }
 
-  // ... (submit function)
-  // Example function to submit business data to Firebase
   Future<void> _submitBusinessToFirebase(
       BuildContext context, String businessName, String abn, String email, String password) async {
-    // Your Firebase logic for business sign-up here
-    // Note: Ensure you have initialized Firebase in your app before using these services
-    // Example:
     final collection = FirebaseFirestore.instance.collection('businesses');
     try {
       await collection.doc().set(
@@ -270,7 +264,7 @@ class _BisSignUpState extends State<BisSignUp> {
           'abn': abn,
           'email': email,
           'password': password
-          // ... (similarly for other fields)
+       
         },
       );
       // ignore: use_build_context_synchronously
@@ -281,7 +275,6 @@ class _BisSignUpState extends State<BisSignUp> {
         ),
       );
     } catch (error) {
-      // Display an error message on the page
       setState(() {
         errorMessage = 'Error submitting to Firebase: $error';
       });

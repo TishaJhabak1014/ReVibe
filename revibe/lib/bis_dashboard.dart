@@ -164,8 +164,7 @@ Widget _buildPage(int index, String businessID) {
 
 class HomeContent extends StatefulWidget {
   final String businessId;
-  
-  // const HomeContent ({super.key, required this.businessId}) ;
+
   const HomeContent({Key? key, required this.businessId}) : super(key: key);
 
 
@@ -282,11 +281,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   }
 }
 class DisplayScannedDataScreen extends StatelessWidget {
-  // final String scannedData;
-
-  // const DisplayScannedDataScreen({Key? key, required this.scannedData})
-  //     : super(key: key);
-
   final String scannedData;
   final String businessId;
 
@@ -369,7 +363,6 @@ class DisplayScannedDataScreen extends StatelessWidget {
 
   if (parts.length >= 2) {
     try {
-      // Query the 'users' collection to get the firstname
       var userDoc = await FirebaseFirestore.instance.collection('users').doc(parts[0]).get();
 
       if (!userDoc.exists) {
@@ -377,36 +370,13 @@ class DisplayScannedDataScreen extends StatelessWidget {
       }
 
       print("here"+ businessId + " "+parts[1] + " "+parts[0]+ " "+scannedData  );
-      // Query the 'scannable_items_org' collection to get points and name
       var itemDoc = await FirebaseFirestore.instance
         .collection('scannable_items_org')
         .where('businessId', isEqualTo: businessId)
         .where('itemId', isEqualTo: parts[1])
         .get();
 
-
-      // if (itemDoc.exists) {
-      //   // Both user and item found, extract data
-      //   return {
-      //     'firstname': userDoc.data()?['firstname'] ?? 'Unknown',
-      //     'points': itemDoc.data()?['points'] ?? 0,
-      //     'name': itemDoc.data()?['name'] ?? 'Unknown',
-      //     'itemId': parts[1],
-      //     'userId': parts[0],
-      //     'businessId': businessId,
-      //     'timestamp': DateTime.now(),
-      //     /**
-      //      * .collection('scannable_items_org')
-      //       .where('businessId', isEqualTo: widget.businessId)
-      //       .snapshots(),
-      //      */
-      //   };
-      // } else {
-      //   return {'error': 'Item not found'};
-      // }
-
       if (itemDoc.docs.isNotEmpty) {
-        // Both user and item found, extract data
         var itemData = itemDoc.docs.first.data();
         return {
           'firstname': userDoc.data()?['firstname'] ?? 'Unknown',
@@ -430,19 +400,6 @@ class DisplayScannedDataScreen extends StatelessWidget {
 }
 
 }
-
-
-
-// String _parseScannedData(String scannedData) {
-//   final parts = scannedData.split('|');
-
-//   if (parts.length >= 2) {
-//     return 'UserID: ${parts[0]}\nItemID: ${parts[1]}';
-//   } else {
-//     return 'Error: Unable to parse scanned data.';
-//   }
-// }
-// **********
 
 class ItemContent extends StatefulWidget {
   final String businessId;
@@ -571,9 +528,9 @@ class _ItemContentState extends State<ItemContent> {
           .collection('item_category')
           .get();
 
-      List<String> itemCategories = []; // List to store item categories
+      List<String> itemCategories = [];
 
-      // Extract item categories from documents
+   
       querySnapshot.docs.forEach((doc) {
         itemCategories.add(doc['name']);
       });
@@ -669,12 +626,6 @@ class _ItemContentState extends State<ItemContent> {
                     }
 
                     _addItemToFirestore(selectedItemName, itemPoints, widget.businessId, itemId);
-
-                    // if (itemId != null) {
-                    //   _addItemToFirestore(selectedItemName, itemPoints, widget.businessId, itemId);
-                    // } else {
-                    //   print('Error: Item not found');
-                    // }
 
                     Navigator.of(context).pop();
                   },
@@ -973,39 +924,6 @@ class CollaboratorContent extends StatelessWidget {
 
 
 
-
-
-
-/*class ProfileContent extends StatefulWidget {
-  final String businessId;
-  
-  const ProfileContent ({super.key, required this.businessId});
-
-  @override
-  _ProfileContentState createState() => _ProfileContentState();
-}
-
-class _ProfileContentState extends State<ProfileContent> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushReplacement(context, 
-            MaterialPageRoute(builder: (context) => const MyApp()));
-          },
-          child: const Text('Logout'),
-        ),
-      ),
-    );
-  }
-}*/
-
-
 class ProfileContent extends StatelessWidget {
   final String businessId;
   String email= "hello";
@@ -1021,7 +939,7 @@ class ProfileContent extends StatelessWidget {
       future: FirebaseFirestore.instance.collection('businesses').doc(businessId).get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator while waiting for data
+          return CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData || !snapshot.data!.exists) {
@@ -1116,17 +1034,6 @@ Future<String> _addItemCategoryToFirestore(String itemName) async {
   }
 }
 
-// // Function to add an item to Firestore
-// Future<void> _addNewItemToFirestore(String itemName) async {
-//   try {
-//     await FirebaseFirestore.instance.collection('items').add({
-//       'name': itemName
-//     });
-//     print('New item added to Firestore');
-//   } catch (e) {
-//     print('Error adding item to Firestore: $e');
-//   }
-// }
 
 Future<String?> _findItemIdByCategoryName(String itemName) async {
   try {
@@ -1136,10 +1043,9 @@ Future<String?> _findItemIdByCategoryName(String itemName) async {
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
-      // Return the first document ID found
       return querySnapshot.docs.first.id;
     } else {
-      return null; // Item not found
+      return null; 
     }
   } catch (e) {
     print('Error finding item ID: $e');
@@ -1183,7 +1089,6 @@ Future<void> _deleteItem(String itemId) async {
     print('Item with ID $itemId deleted successfully');
   } catch (e) {
     print('Error deleting item with ID $itemId: $e');
-    // Handle error accordingly
   }
 }
 

@@ -44,7 +44,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    int userType = widget.userType;  // Initialize userType in the build method
+    int userType = widget.userType; 
     return Scaffold(
       // appBar: AppBar(
       //   title: const Text('Sign Up'),
@@ -124,14 +124,12 @@ class _SignUpPageState extends State<SignUpPage> {
                     String password = passwordController.text;
                     String confirmPassword = confirmPasswordController.text;
 
-                    // Validate the input if needed
-                    // Print values to console
-                    // print('First Name: $firstName');
+                  
                     print('test: $confirmPassword $password');
 
                     // Validate the input
                     if (firstName.isEmpty || emailAddress.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-                      // Display an error message
+                    
                       setState(() {
                         errorMessage = 'All fields are required';
                       });
@@ -139,7 +137,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     }
 
                     if (!isValidEmail(emailAddress)) {
-                      // Display an error message
+                     
                       setState(() {
                         errorMessage = 'Invalid email address';
                       });
@@ -147,7 +145,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     }
 
                     if (password != confirmPassword) {
-                      // Display an error message
+                    
                       setState(() {
                         errorMessage = 'Passwords do not match';
                       });
@@ -156,7 +154,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                     // Hash the password
                     String hashedPassword = hashPassword(password);
-                    // Perform further actions, for example, send data to Firebase
+                  
                     await _submitToFirebase(context, firstName, emailAddress, hashedPassword);
 
                   },
@@ -198,9 +196,6 @@ class _SignUpPageState extends State<SignUpPage> {
   // Example function to submit data to Firebase
   Future<void> _submitToFirebase(
       BuildContext context, String firstName, String emailAddress, String password) async {
-    // Your Firebase logic here, e.g., using Firebase Realtime Database or Firestore
-    // Note: Ensure you have initialized Firebase in your app before using these services
-    // Example:
     final collection = FirebaseFirestore.instance.collection('users');
     try {
       await collection.doc().set(
@@ -220,7 +215,6 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       );
     } catch (error) {
-      // Display an error message on the page
       setState(() {
         errorMessage = 'Error submitting to Firebase: $error';
       });

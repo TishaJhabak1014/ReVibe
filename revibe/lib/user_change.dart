@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'login_page.dart'; 
 
 class UserChange extends StatefulWidget {
-  final String userId; // Change the type to String
+  final String userId;
   String password = 'hello';
 
   UserChange({required this.userId});
@@ -34,7 +34,7 @@ class _UserChangeState extends State<UserChange> {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
 
-  String errorMessage = ''; // Variable to hold error messages
+  String errorMessage = '';
 
   
 
@@ -50,7 +50,7 @@ class _UserChangeState extends State<UserChange> {
       future: FirebaseFirestore.instance.collection('users').doc(widget.userId).get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator while waiting for data
+          return CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData || !snapshot.data!.exists) {
@@ -147,14 +147,12 @@ class _UserChangeState extends State<UserChange> {
                           String password = passwordController.text;
                           String confirmPassword = confirmPasswordController.text;
 
-                          // Validate the input if needed
-                          // Print values to console
-                          // print('First Name: $firstName');
+                      
                           print('test: $confirmPassword $password');
 
                           // Validate the input
                           if (firstName.isEmpty || emailAddress.isEmpty) {
-                            // Display an error message
+                            
                             setState(() {
                               errorMessage = 'Name and email is required';
                             });
@@ -162,7 +160,7 @@ class _UserChangeState extends State<UserChange> {
                           }
 
                           if (!isValidEmail(emailAddress)) {
-                            // Display an error message
+                         
                             setState(() {
                               errorMessage = 'Invalid email address';
                             });
@@ -170,7 +168,7 @@ class _UserChangeState extends State<UserChange> {
                           }
 
                           if (password != confirmPassword) {
-                            // Display an error message
+                        
                             setState(() {
                               errorMessage = 'Passwords do not match';
                             });
@@ -185,7 +183,7 @@ class _UserChangeState extends State<UserChange> {
                             hashedPassword = hashPassword(password);
                           }
 
-                          // Perform further actions, for example, send data to Firebase
+                      
                           await _submitToFirebase(context, firstName, emailAddress, hashedPassword);
 
                         },
@@ -227,12 +225,10 @@ class _UserChangeState extends State<UserChange> {
     );
   }
 
-  // Example function to submit data to Firebase
+
   Future<void> _submitToFirebase(
       BuildContext context, String firstName, String emailAddress, String password) async {
-    // Your Firebase logic here, e.g., using Firebase Realtime Database or Firestore
-    // Note: Ensure you have initialized Firebase in your app before using these services
-    // Example:
+   
     final collection = FirebaseFirestore.instance.collection('users');
     try {
       await collection.doc(widget.userId).set(
@@ -252,7 +248,7 @@ class _UserChangeState extends State<UserChange> {
         ),
       );
     } catch (error) {
-      // Display an error message on the page
+  
       setState(() {
         errorMessage = 'Error submitting to Firebase: $error';
       });

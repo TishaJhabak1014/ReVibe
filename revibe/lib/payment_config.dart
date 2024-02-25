@@ -1,3 +1,5 @@
+// source https://github.com/vijayinyoutube/flutter_payment_app/blob/master/lib/payment_config.dart
+
 const String defaultGooglePay = '''{
   "provider": "google_pay",
   "data": {

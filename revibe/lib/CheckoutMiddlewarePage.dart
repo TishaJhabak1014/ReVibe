@@ -23,9 +23,9 @@ class CheckoutMiddlewarePage extends StatefulWidget {
 class _CheckoutMiddlewarePageState extends State<CheckoutMiddlewarePage> {
   double amount = 0.0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String itemName = '';  // Add a variable to store the item name
-  String bisName = '';  // Add a variable to store the item name
-  String userName = '';  // Add a variable to store the item name
+  String itemName = '';  
+  String bisName = ''; 
+  String userName = ''; 
 
 
 
@@ -33,7 +33,7 @@ class _CheckoutMiddlewarePageState extends State<CheckoutMiddlewarePage> {
   @override
   void initState() {
     super.initState();
-    fetchItemName();  // Fetch the item name when the widget initializes
+    fetchItemName(); 
   }
 
   void fetchItemName() {
