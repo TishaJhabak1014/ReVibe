@@ -1,4 +1,5 @@
 # ReVibe
+To run the code, navigate to the revibe folder and type 'flutter run' in the terminal. 
 
 # Data Model
 
